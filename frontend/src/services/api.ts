@@ -45,7 +45,7 @@ class ApiService {
   // File upload with progress
   async uploadReceipt(
     file: File,
-    onProgress?: (progress: number) => void
+    onProgress?: (_progress: number) => void
   ): Promise<UploadResponse> {
     const formData = new FormData()
     formData.append('receipt', file)
@@ -57,9 +57,9 @@ class ApiService {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: progressEvent => {
-          if (progressEvent.total && onProgress) {
-            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        onUploadProgress: _progressEvent => {
+          if (_progressEvent.total && onProgress) {
+            const progress = Math.round((_progressEvent.loaded * 100) / _progressEvent.total)
             onProgress(progress)
           }
         },

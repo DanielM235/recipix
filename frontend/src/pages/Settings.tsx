@@ -57,7 +57,7 @@ function Settings() {
         setConnectionStatus('disconnected')
         toast.error(result.message || t('errors.connectionFailed'))
       }
-    } catch (error) {
+    } catch {
       setConnectionStatus('disconnected')
       toast.error(t('errors.connectionFailed'))
     } finally {

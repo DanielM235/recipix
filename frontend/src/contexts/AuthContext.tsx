@@ -8,7 +8,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<void>
+  login: (_email: string, _password: string) => Promise<void>
   logout: () => void
   isLoading: boolean
 }
@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const login = async (email: string, _password: string) => {
+  const login = async (_email: string, _password: string) => {
     setIsLoading(true)
     try {
       // TODO: Implement actual authentication
@@ -27,10 +27,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await new Promise(resolve => setTimeout(resolve, 1000))
       setUser({
         id: '1',
-        email,
-        name: email.split('@')[0],
+        email: _email,
+        name: _email.split('@')[0],
       })
-    } catch (error) {
+    } catch {
       throw new Error('Login failed')
     } finally {
       setIsLoading(false)
