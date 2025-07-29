@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '../../contexts/ThemeContext'
 import Home from '../Home'
-import '../../i18n/config'
 
 // Mock react-i18next
 jest.mock('react-i18next', () => ({
@@ -17,7 +16,26 @@ jest.mock('react-i18next', () => ({
       return translations[key] || key
     },
   }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: jest.fn(),
+  },
 }))
+
+// Mock i18next
+jest.mock('i18next', () => ({
+  use: jest.fn(() => ({
+    use: jest.fn(() => ({
+      init: jest.fn(),
+    })),
+  })),
+  init: jest.fn(),
+}))
+
+// Mock i18next-browser-languagedetector
+jest.mock('i18next-browser-languagedetector', () => jest.fn())
+
+import '../../i18n/config'
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(

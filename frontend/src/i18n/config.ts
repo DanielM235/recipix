@@ -21,7 +21,7 @@ i18n
     resources,
     fallbackLng: 'en',
     lng: 'pt-BR', // default language
-    debug: import.meta.env.DEV,
+    debug: process.env.NODE_ENV === 'development',
 
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
