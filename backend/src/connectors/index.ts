@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import logger from '../utils/logger'
-import { ExpenseData, ConnectorConfig } from '../../shared/types'
+import { ExpenseData, ConnectorConfig } from '../../../shared/types'
 
 export interface ExpenseConnector {
   name: string
@@ -21,7 +21,7 @@ export class FireflyConnector implements ExpenseConnector {
 
   async testConnection(): Promise<{ connected: boolean; message: string }> {
     try {
-      const response = await axios.get(`${this.config.baseUrl}/api/v1/about`, {
+      await axios.get(`${this.config.baseUrl}/api/v1/about`, {
         headers: {
           'Authorization': `Bearer ${this.config.apiKey}`,
           'Accept': 'application/json',

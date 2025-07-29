@@ -7,7 +7,7 @@ import sharp from 'sharp'
 import Tesseract from 'tesseract.js'
 import pdfParse from 'pdf-parse'
 import logger from '../utils/logger'
-import { Receipt, OCRData, ProcessingStatus } from '../../shared/types'
+import { Receipt, OCRData, ProcessingStatus } from '../../../shared/types'
 
 const router = Router()
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import axios from 'axios'
 import logger from '../utils/logger'
-import { ConnectorConfig } from '../../shared/types'
+import { ConnectorConfig } from '../../../shared/types'
 
 const router = Router()
 
