@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FileText, Image, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import apiService from '../services/api'
-import type { Receipt } from '../../shared/types'
+import type { Receipt } from '../../../shared/types'
 
 function History() {
   const { t } = useTranslation()

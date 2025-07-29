@@ -6,7 +6,7 @@ import type {
   UploadResponse, 
   ProcessingStatus,
   ConnectorConfig 
-} from '../../shared/types'
+} from '../../../shared/types'
 
 class ApiService {
   private api: AxiosInstance

@@ -25,9 +25,10 @@ const localStorageMock = {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
 // Mock intersection observer
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  disconnect() {}
+const mockIntersectionObserver = class {
   observe() {}
+  disconnect() {}
   unobserve() {}
 }
+
+;(global as any).IntersectionObserver = mockIntersectionObserver

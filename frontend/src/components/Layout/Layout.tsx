@@ -1,15 +1,11 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 
 interface LayoutProps {
-  children: React.ReactNode
+  readonly children: React.ReactNode
 }
 
 function Layout({ children }: LayoutProps) {
-  const { t } = useTranslation()
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />

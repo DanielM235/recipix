@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-hot-toast'
 import { Upload as UploadIcon, X, FileText, Image } from 'lucide-react'
 import apiService from '../services/api'
-import type { Receipt } from '../../shared/types'
+import type { Receipt } from '../../../shared/types'
 
 function Upload() {
   const { t } = useTranslation()

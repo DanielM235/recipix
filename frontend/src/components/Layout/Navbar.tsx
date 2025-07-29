@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Menu, X, Sun, Moon, Globe } from 'lucide-react'
 import { useTheme } from '../../contexts/ThemeContext'
 
 function Navbar() {
   const { t, i18n } = useTranslation()
-  const { theme, setTheme, isDark } = useTheme()
+  const { setTheme, isDark } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const toggleTheme = () => {
@@ -36,7 +36,7 @@ function Navbar() {
             <button
               onClick={toggleLanguage}
               className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title={t('settings.language.title')}
+              title={t('settings.language.title') ?? ''}
             >
               <Globe className="h-5 w-5" />
               <span className="ml-1 text-sm">
@@ -48,7 +48,7 @@ function Navbar() {
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title={t('settings.theme.title')}
+              title={t('settings.theme.title') ?? ''}
             >
               {isDark ? (
                 <Sun className="h-5 w-5" />
