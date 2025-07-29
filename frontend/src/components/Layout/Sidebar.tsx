@@ -29,14 +29,14 @@ function Sidebar() {
   ]
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
-      <div className="flex flex-col h-full">
+    <aside className='fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out'>
+      <div className='flex flex-col h-full'>
         {/* Header space for navbar */}
-        <div className="h-16"></div>
-        
+        <div className='h-16'></div>
+
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          {navigation.map((item) => (
+        <nav className='flex-1 px-4 py-6 space-y-2'>
+          {navigation.map(item => (
             <NavLink
               key={item.name}
               to={item.href}
@@ -48,15 +48,15 @@ function Sidebar() {
                 }`
               }
             >
-              <item.icon className="mr-3 h-5 w-5" />
+              <item.icon className='mr-3 h-5 w-5' />
               {item.name}
             </NavLink>
           ))}
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+        <div className='p-4 border-t border-gray-200 dark:border-gray-700'>
+          <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
             {t('app.title')} v1.0.0
           </p>
         </div>

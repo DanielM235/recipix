@@ -10,7 +10,7 @@ export const errorHandler = (
   err: CustomError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   // Set default error values
   let statusCode = err.statusCode || 500
@@ -39,7 +39,9 @@ export const errorHandler = (
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    message = Object.values((err as any).errors).map((val: any) => val.message).join(', ')
+    message = Object.values((err as any).errors)
+      .map((val: any) => val.message)
+      .join(', ')
     statusCode = 400
   }
 

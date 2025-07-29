@@ -4,9 +4,7 @@ import app from '../index'
 describe('Health Endpoints', () => {
   describe('GET /api/health', () => {
     it('should return basic health status', async () => {
-      const response = await request(app)
-        .get('/api/health')
-        .expect(200)
+      const response = await request(app).get('/api/health').expect(200)
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body.data).toHaveProperty('status', 'OK')
@@ -19,9 +17,7 @@ describe('Health Endpoints', () => {
 
   describe('GET /api/health/detailed', () => {
     it('should return detailed health status', async () => {
-      const response = await request(app)
-        .get('/api/health/detailed')
-        .expect(200)
+      const response = await request(app).get('/api/health/detailed').expect(200)
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body.data).toHaveProperty('status', 'OK')

@@ -47,12 +47,7 @@ export function formatRelativeTime(date: string | Date): string {
  * Validate file type for upload
  */
 export function isValidFileType(file: File): boolean {
-  const allowedTypes = [
-    'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'application/pdf'
-  ]
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']
   return allowedTypes.includes(file.type)
 }
 

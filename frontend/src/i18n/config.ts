@@ -7,11 +7,11 @@ import ptBRTranslations from './locales/pt-BR.json'
 
 const resources = {
   en: {
-    translation: enTranslations
+    translation: enTranslations,
   },
   'pt-BR': {
-    translation: ptBRTranslations
-  }
+    translation: ptBRTranslations,
+  },
 }
 
 i18n

@@ -11,23 +11,24 @@ const logger = winston.createLogger({
   defaultMeta: { service: 'recipix-backend' },
   transports: [
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
-    })
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+    }),
   ],
 })
 
 // If we're not in production, add file logging
 if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.File({ 
-    filename: 'logs/error.log', 
-    level: 'error' 
-  }))
-  logger.add(new winston.transports.File({ 
-    filename: 'logs/combined.log' 
-  }))
+  logger.add(
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+    })
+  )
+  logger.add(
+    new winston.transports.File({
+      filename: 'logs/combined.log',
+    })
+  )
 }
 
 export default logger

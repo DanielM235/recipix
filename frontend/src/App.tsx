@@ -13,17 +13,17 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+          <div className='min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors'>
             <Layout>
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/upload" element={<Upload />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path='/' element={<Home />} />
+                <Route path='/upload' element={<Upload />} />
+                <Route path='/history' element={<History />} />
+                <Route path='/settings' element={<Settings />} />
               </Routes>
             </Layout>
             <Toaster
-              position="top-right"
+              position='top-right'
               toastOptions={{
                 duration: 4000,
                 className: 'dark:bg-gray-800 dark:text-white',

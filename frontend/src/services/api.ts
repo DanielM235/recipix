@@ -1,11 +1,11 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
-import type { 
-  Receipt, 
-  ExpenseData, 
-  ApiResponse, 
-  UploadResponse, 
+import type {
+  Receipt,
+  ExpenseData,
+  ApiResponse,
+  UploadResponse,
   ProcessingStatus,
-  ConnectorConfig 
+  ConnectorConfig,
 } from '../../../shared/types'
 
 class ApiService {
@@ -21,7 +21,7 @@ class ApiService {
     })
 
     // Request interceptor for auth
-    this.api.interceptors.request.use((config) => {
+    this.api.interceptors.request.use(config => {
       const token = localStorage.getItem('auth_token')
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
@@ -31,8 +31,8 @@ class ApiService {
 
     // Response interceptor for error handling
     this.api.interceptors.response.use(
-      (response) => response,
-      (error) => {
+      response => response,
+      error => {
         if (error.response?.status === 401) {
           localStorage.removeItem('auth_token')
           window.location.href = '/login'
@@ -44,7 +44,7 @@ class ApiService {
 
   // File upload with progress
   async uploadReceipt(
-    file: File, 
+    file: File,
     onProgress?: (progress: number) => void
   ): Promise<UploadResponse> {
     const formData = new FormData()
@@ -57,7 +57,7 @@ class ApiService {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent) => {
+        onUploadProgress: progressEvent => {
           if (progressEvent.total && onProgress) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
             onProgress(progress)
@@ -75,9 +75,7 @@ class ApiService {
 
   // Get receipt by ID
   async getReceipt(id: string): Promise<Receipt> {
-    const response: AxiosResponse<ApiResponse<Receipt>> = await this.api.get(
-      `/receipts/${id}`
-    )
+    const response: AxiosResponse<ApiResponse<Receipt>> = await this.api.get(`/receipts/${id}`)
 
     if (!response.data.success) {
       throw new Error(response.data.error || 'Failed to get receipt')
@@ -88,7 +86,7 @@ class ApiService {
 
   // Get all receipts
   async getReceipts(page = 1, limit = 20): Promise<{ receipts: Receipt[]; total: number }> {
-    const response: AxiosResponse<ApiResponse<{ receipts: Receipt[]; total: number }>> = 
+    const response: AxiosResponse<ApiResponse<{ receipts: Receipt[]; total: number }>> =
       await this.api.get(`/receipts?page=${page}&limit=${limit}`)
 
     if (!response.data.success) {
@@ -113,15 +111,17 @@ class ApiService {
 
   // Submit expense to financial system
   async submitExpense(
-    receiptId: string, 
-    expenseData: ExpenseData, 
+    receiptId: string,
+    expenseData: ExpenseData,
     connector = 'firefly'
   ): Promise<{ transactionId: string }> {
-    const response: AxiosResponse<ApiResponse<{ transactionId: string }>> = 
-      await this.api.post(`/receipts/${receiptId}/submit`, {
+    const response: AxiosResponse<ApiResponse<{ transactionId: string }>> = await this.api.post(
+      `/receipts/${receiptId}/submit`,
+      {
         expenseData,
         connector,
-      })
+      }
+    )
 
     if (!response.data.success) {
       throw new Error(response.data.error || 'Failed to submit expense')
@@ -132,7 +132,7 @@ class ApiService {
 
   // Test connector connection
   async testConnector(config: ConnectorConfig): Promise<{ connected: boolean; message: string }> {
-    const response: AxiosResponse<ApiResponse<{ connected: boolean; message: string }>> = 
+    const response: AxiosResponse<ApiResponse<{ connected: boolean; message: string }>> =
       await this.api.post('/connectors/test', config)
 
     if (!response.data.success) {
@@ -144,7 +144,7 @@ class ApiService {
 
   // Get connector status
   async getConnectorStatus(type: string): Promise<{ connected: boolean; lastSync?: string }> {
-    const response: AxiosResponse<ApiResponse<{ connected: boolean; lastSync?: string }>> = 
+    const response: AxiosResponse<ApiResponse<{ connected: boolean; lastSync?: string }>> =
       await this.api.get(`/connectors/${type}/status`)
 
     if (!response.data.success) {
@@ -156,7 +156,7 @@ class ApiService {
 
   // Health check
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    const response: AxiosResponse<ApiResponse<{ status: string; timestamp: string }>> = 
+    const response: AxiosResponse<ApiResponse<{ status: string; timestamp: string }>> =
       await this.api.get('/health')
 
     if (!response.data.success) {

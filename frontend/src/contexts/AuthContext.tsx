@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser({
         id: '1',
         email,
-        name: email.split('@')[0]
+        name: email.split('@')[0],
       })
     } catch (error) {
       throw new Error('Login failed')

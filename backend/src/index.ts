@@ -23,15 +23,19 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 // Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}))
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+)
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true,
-}))
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+  })
+)
 
 // Rate limiting
 const limiter = rateLimit({
@@ -47,11 +51,13 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Logging middleware
-app.use(morgan('combined', {
-  stream: {
-    write: (message: string) => logger.info(message.trim())
-  }
-}))
+app.use(
+  morgan('combined', {
+    stream: {
+      write: (message: string) => logger.info(message.trim()),
+    },
+  })
+)
 
 // Static files (for uploaded files)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
@@ -65,11 +71,13 @@ app.use('/api/connectors', connectorsRouter)
 app.use(notFoundHandler)
 app.use(errorHandler)
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`🚀 Server running on port ${PORT}`)
-  logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
-  logger.info(`🔗 API URL: http://localhost:${PORT}/api`)
-})
+// Start server only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info(`🚀 Server running on port ${PORT}`)
+    logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+    logger.info(`🔗 API URL: http://localhost:${PORT}/api`)
+  })
+}
 
 export default app

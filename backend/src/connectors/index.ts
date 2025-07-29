@@ -23,8 +23,8 @@ export class FireflyConnector implements ExpenseConnector {
     try {
       await axios.get(`${this.config.baseUrl}/api/v1/about`, {
         headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
-          'Accept': 'application/json',
+          Authorization: `Bearer ${this.config.apiKey}`,
+          Accept: 'application/json',
         },
         timeout: 10000,
       })
@@ -36,7 +36,9 @@ export class FireflyConnector implements ExpenseConnector {
     }
   }
 
-  async submitExpense(expenseData: ExpenseData): Promise<{ transactionId: string; success: boolean }> {
+  async submitExpense(
+    expenseData: ExpenseData
+  ): Promise<{ transactionId: string; success: boolean }> {
     try {
       // Prepare the transaction data for Firefly III API
       const transactionData = {
@@ -55,8 +57,8 @@ export class FireflyConnector implements ExpenseConnector {
             currency_code: expenseData.currency_code || 'USD',
             category_name: expenseData.category || 'General',
             tags: expenseData.tags || [],
-          }
-        ]
+          },
+        ],
       }
 
       const response: AxiosResponse = await axios.post(
@@ -64,8 +66,8 @@ export class FireflyConnector implements ExpenseConnector {
         transactionData,
         {
           headers: {
-            'Authorization': `Bearer ${this.config.apiKey}`,
-            'Accept': 'application/json',
+            Authorization: `Bearer ${this.config.apiKey}`,
+            Accept: 'application/json',
             'Content-Type': 'application/json',
           },
           timeout: 15000,
@@ -75,7 +77,7 @@ export class FireflyConnector implements ExpenseConnector {
       if (response.status === 200 || response.status === 201) {
         const transactionId = response.data.data.attributes.transactions[0].transaction_journal_id
         logger.info(`Expense submitted to Firefly III: ${transactionId}`)
-        
+
         return {
           transactionId: transactionId.toString(),
           success: true,
@@ -105,7 +107,9 @@ export class XeroConnector implements ExpenseConnector {
     return { connected: false, message: 'Xero integration not implemented yet' }
   }
 
-  async submitExpense(expenseData: ExpenseData): Promise<{ transactionId: string; success: boolean }> {
+  async submitExpense(
+    _expenseData: ExpenseData
+  ): Promise<{ transactionId: string; success: boolean }> {
     // Implement Xero expense submission
     throw new Error('Xero integration not implemented yet')
   }
@@ -126,7 +130,9 @@ export class ERPConnector implements ExpenseConnector {
     return { connected: false, message: 'ERP integration not implemented yet' }
   }
 
-  async submitExpense(expenseData: ExpenseData): Promise<{ transactionId: string; success: boolean }> {
+  async submitExpense(
+    _expenseData: ExpenseData
+  ): Promise<{ transactionId: string; success: boolean }> {
     // Implement ERP expense submission
     throw new Error('ERP integration not implemented yet')
   }

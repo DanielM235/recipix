@@ -51,39 +51,43 @@ const receipts: Receipt[] = []
  * @desc    Upload receipt file
  * @access  Public
  */
-router.post('/upload', upload.single('receipt'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        error: 'No file uploaded',
+router.post(
+  '/upload',
+  upload.single('receipt'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          error: 'No file uploaded',
+        })
+      }
+
+      const receipt: Receipt = {
+        id: uuidv4(),
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimeType: req.file.mimetype,
+        uploadedAt: new Date().toISOString(),
+        status: 'pending',
+      }
+
+      receipts.push(receipt)
+
+      logger.info(`File uploaded: ${receipt.originalName} (${receipt.id})`)
+
+      res.json({
+        success: true,
+        data: {
+          receipt,
+        },
       })
+    } catch (error) {
+      next(error)
     }
-
-    const receipt: Receipt = {
-      id: uuidv4(),
-      filename: req.file.filename,
-      originalName: req.file.originalname,
-      size: req.file.size,
-      mimeType: req.file.mimetype,
-      uploadedAt: new Date().toISOString(),
-      status: 'pending',
-    }
-
-    receipts.push(receipt)
-
-    logger.info(`File uploaded: ${receipt.originalName} (${receipt.id})`)
-
-    res.json({
-      success: true,
-      data: {
-        receipt,
-      },
-    })
-  } catch (error) {
-    next(error)
   }
-})
+)
 
 /**
  * @route   GET /api/receipts
@@ -184,7 +188,7 @@ router.post('/:id/process', async (req: Request, res: Response, next: NextFuncti
   } catch (error) {
     const { id } = req.params
     const receipt = receipts.find(r => r.id === id)
-    
+
     if (receipt) {
       receipt.status = 'failed'
       receipt.error = error instanceof Error ? error.message : 'Unknown error'
@@ -239,10 +243,7 @@ router.post('/:id/submit', async (req: Request, res: Response, next: NextFunctio
 async function processImage(filePath: string): Promise<OCRData> {
   try {
     // Optimize image for OCR
-    const optimizedBuffer = await sharp(filePath)
-      .greyscale()
-      .normalise()
-      .toBuffer()
+    const optimizedBuffer = await sharp(filePath).greyscale().normalise().toBuffer()
 
     // Perform OCR
     const result = await Tesseract.recognize(optimizedBuffer, 'eng', {
@@ -250,7 +251,7 @@ async function processImage(filePath: string): Promise<OCRData> {
         if (m.status === 'recognizing text') {
           logger.info(`OCR Progress: ${Math.round(m.progress * 100)}%`)
         }
-      }
+      },
     })
 
     return {
@@ -259,7 +260,9 @@ async function processImage(filePath: string): Promise<OCRData> {
       extractedData: extractDataFromText(result.data.text),
     }
   } catch (error) {
-    throw new Error(`Image processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(
+      `Image processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
   }
 }
 
@@ -274,7 +277,9 @@ async function processPDF(filePath: string): Promise<OCRData> {
       extractedData: extractDataFromText(data.text),
     }
   } catch (error) {
-    throw new Error(`PDF processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(
+      `PDF processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
   }
 }
 
@@ -289,13 +294,17 @@ function extractDataFromText(text: string) {
   }
 
   // Extract date
-  const dateMatch = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)
+  const dateRegex = /\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/
+  const dateMatch = dateRegex.exec(text)
   if (dateMatch) {
     extractedData.date = dateMatch[0]
   }
 
   // Extract merchant (first line that looks like a business name)
-  const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+  const lines = text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
   if (lines.length > 0) {
     extractedData.merchant = lines[0]
   }
