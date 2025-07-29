@@ -1,0 +1,50 @@
+version: 2
+
+build:
+  os: ubuntu-22.04
+  tools:
+    node: "18"
+  commands:
+    - echo "Installing dependencies..."
+    - npm run install:all
+    
+    - echo "Building frontend..."
+    - npm run build:frontend
+    
+    - echo "Building backend..."
+    - npm run build:backend
+
+services:
+  - type: web
+    name: recipix-backend
+    runtime: node
+    plan: starter
+    buildCommand: npm run build:backend
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: CORS_ORIGIN
+        fromService:
+          type: web
+          name: recipix-frontend
+          property: url
+    healthCheckPath: /api/health
+
+  - type: web
+    name: recipix-frontend
+    runtime: static
+    buildCommand: npm run build:frontend
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: recipix-backend
+          property: url
+
+databases:
+  - name: recipix-uploads
+    plan: starter

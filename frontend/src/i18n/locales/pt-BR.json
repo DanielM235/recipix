@@ -1,0 +1,92 @@
+{
+  "app": {
+    "title": "Recipix",
+    "subtitle": "Processador de Recibos Financeiros",
+    "description": "Capture e processe recibos para sistemas financeiros"
+  },
+  "navigation": {
+    "home": "Início",
+    "upload": "Upload",
+    "history": "Histórico",
+    "settings": "Configurações"
+  },
+  "upload": {
+    "title": "Enviar Recibo",
+    "description": "Envie uma imagem ou PDF do seu recibo",
+    "dropzone": {
+      "title": "Arraste arquivos aqui ou clique para enviar",
+      "subtitle": "Suporta imagens (JPG, PNG) e arquivos PDF até 10MB",
+      "active": "Solte os arquivos aqui..."
+    },
+    "preview": {
+      "title": "Visualização",
+      "processing": "Processando...",
+      "retry": "Tentar novamente"
+    },
+    "form": {
+      "amount": "Valor",
+      "description": "Descrição",
+      "category": "Categoria",
+      "date": "Data",
+      "submit": "Enviar para Firefly III",
+      "cancel": "Cancelar"
+    }
+  },
+  "history": {
+    "title": "Histórico de Processamento",
+    "empty": "Nenhum recibo processado ainda",
+    "status": {
+      "pending": "Pendente",
+      "processing": "Processando",
+      "completed": "Concluído",
+      "failed": "Falhou"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": {
+      "title": "Idioma",
+      "english": "English",
+      "portuguese": "Português (Brasil)"
+    },
+    "theme": {
+      "title": "Tema",
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Sistema"
+    },
+    "firefly": {
+      "title": "Integração Firefly III",
+      "url": "URL do Servidor",
+      "token": "Token de Acesso Pessoal",
+      "test": "Testar Conexão",
+      "connected": "Conectado",
+      "disconnected": "Desconectado"
+    }
+  },
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "retry": "Tentar novamente",
+    "close": "Fechar"
+  },
+  "errors": {
+    "fileTooBig": "Arquivo muito grande. Tamanho máximo é 10MB.",
+    "fileTypeNotSupported": "Tipo de arquivo não suportado. Use JPG, PNG ou PDF.",
+    "uploadFailed": "Falha no upload. Tente novamente.",
+    "connectionFailed": "Falha na conexão. Verifique suas configurações.",
+    "invalidToken": "Token de acesso inválido.",
+    "networkError": "Erro de rede. Verifique sua conexão."
+  },
+  "success": {
+    "uploaded": "Recibo enviado com sucesso",
+    "processed": "Recibo processado com sucesso",
+    "saved": "Configurações salvas com sucesso",
+    "connected": "Conectado com sucesso ao Firefly III"
+  }
+}
