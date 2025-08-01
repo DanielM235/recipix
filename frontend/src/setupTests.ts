@@ -25,10 +25,10 @@ const localStorageMock = {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
 // Mock intersection observer
-const mockIntersectionObserver = class {
-  observe() {}
-  disconnect() {}
-  unobserve() {}
-}
+const mockIntersectionObserver = jest.fn(() => ({
+  observe: jest.fn(),
+  disconnect: jest.fn(),
+  unobserve: jest.fn(),
+}))
 
 ;(global as any).IntersectionObserver = mockIntersectionObserver

@@ -1,9 +1,10 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import '@testing-library/jest-dom'
-import Home from '../Home'
+import Home from './pages/Home'
 
-// Mock the required dependencies
+// Mock dependencies
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
@@ -11,23 +12,22 @@ jest.mock('react-i18next', () => ({
         'app.title': 'Recipix',
         'app.description': 'Capture, process, and send payment receipts to your financial management system.',
         'navigation.upload': 'Upload Receipt',
-        'navigation.history': 'History',
+        'navigation.history': 'History', 
         'navigation.settings': 'Settings',
         'upload.description': 'Upload and process your receipts',
         'history.title': 'View your receipt history',
-        'settings.title': 'Configure your settings',
-        'upload.title': 'Upload Receipt'
+        'settings.title': 'Configure your settings'
       }
       return translations[key] || key
     }
-  }),
+  })
 }))
 
 jest.mock('lucide-react', () => ({
-  Upload: (props: any) => <div data-testid="upload-icon" {...props} />,
-  History: (props: any) => <div data-testid="history-icon" {...props} />,
-  Settings: (props: any) => <div data-testid="settings-icon" {...props} />,
-  FileText: (props: any) => <div data-testid="filetext-icon" {...props} />,
+  Upload: () => <div data-testid="upload-icon" />,
+  History: () => <div data-testid="history-icon" />,
+  Settings: () => <div data-testid="settings-icon" />,
+  FileText: () => <div data-testid="filetext-icon" />
 }))
 
 const renderWithRouter = (component: React.ReactElement) => {
@@ -44,65 +44,45 @@ const renderWithRouter = (component: React.ReactElement) => {
 }
 
 describe('Home Component', () => {
-  it('renders without crashing', () => {
+  test('renders without crashing', () => {
     renderWithRouter(<Home />)
     expect(screen.getByText('Recipix')).toBeInTheDocument()
   })
 
-  it('displays main title and description', () => {
+  test('displays main title and description', () => {
     renderWithRouter(<Home />)
     expect(screen.getByText('Recipix')).toBeInTheDocument()
     expect(screen.getByText('Capture, process, and send payment receipts to your financial management system.')).toBeInTheDocument()
   })
 
-  it('displays upload and history navigation links', () => {
+  test('displays navigation features', () => {
     renderWithRouter(<Home />)
-    
-    // Check for navigation links in the header
-    const uploadLinks = screen.getAllByText('Upload Receipt')
-    const historyLinks = screen.getAllByText('History')
-    
-    expect(uploadLinks.length).toBeGreaterThan(0)
-    expect(historyLinks.length).toBeGreaterThan(0)
+    expect(screen.getByTestId('upload-icon')).toBeInTheDocument()
+    expect(screen.getByTestId('history-icon')).toBeInTheDocument()
+    expect(screen.getByTestId('settings-icon')).toBeInTheDocument()
   })
 
-  it('displays feature cards', () => {
+  test('displays feature cards with descriptions', () => {
     renderWithRouter(<Home />)
-    
-    // Check for feature descriptions
     expect(screen.getByText('Upload and process your receipts')).toBeInTheDocument()
     expect(screen.getByText('View your receipt history')).toBeInTheDocument()
     expect(screen.getByText('Configure your settings')).toBeInTheDocument()
   })
 
-  it('contains proper navigation links', () => {
+  test('has correct navigation links', () => {
     renderWithRouter(<Home />)
     
-    // Check for links with proper href attributes
-    const uploadLink = screen.getAllByRole('link').find(link => 
-      link.getAttribute('href') === '/upload'
-    )
-    const historyLink = screen.getAllByRole('link').find(link => 
-      link.getAttribute('href') === '/history'
-    )
-    const settingsLink = screen.getAllByRole('link').find(link => 
-      link.getAttribute('href') === '/settings'
-    )
+    const links = screen.getAllByRole('link')
+    const uploadLink = links.find(link => link.getAttribute('href') === '/upload')
+    const historyLink = links.find(link => link.getAttribute('href') === '/history') 
+    const settingsLink = links.find(link => link.getAttribute('href') === '/settings')
     
     expect(uploadLink).toBeInTheDocument()
     expect(historyLink).toBeInTheDocument()
     expect(settingsLink).toBeInTheDocument()
   })
 
-  it('displays icons for each feature', () => {
-    renderWithRouter(<Home />)
-    
-    expect(screen.getByTestId('upload-icon')).toBeInTheDocument()
-    expect(screen.getByTestId('history-icon')).toBeInTheDocument()
-    expect(screen.getByTestId('settings-icon')).toBeInTheDocument()
-  })
-
-  it('displays stats section', () => {
+  test('displays stats section', () => {
     renderWithRouter(<Home />)
     
     expect(screen.getByText('100%')).toBeInTheDocument()

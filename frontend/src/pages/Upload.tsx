@@ -22,7 +22,7 @@ function Upload() {
         }
 
         // Validate file type
-        if (!file.type.match(/^(image\/(jpeg|jpg|png)|application\/pdf)$/)) {
+        if (!/^(image\/(jpeg|jpg|png)|application\/pdf)$/.exec(file.type)) {
           toast.error(t('errors.fileTypeNotSupported'))
           continue
         }
@@ -58,7 +58,7 @@ function Upload() {
     },
     maxSize: 10 * 1024 * 1024, // 10MB
     multiple: true,
-  })
+  } as any)
 
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index))
@@ -84,8 +84,13 @@ function Upload() {
 
       {/* Upload Zone */}
       <div className='mb-8'>
-        <div {...getRootProps()} className={`upload-zone ${isDragActive ? 'active' : ''}`}>
-          <input {...getInputProps()} />
+        <div
+          className={`border-2 border-dashed p-8 text-center cursor-pointer transition-colors ${
+            isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+          }`}
+          {...(getRootProps() as any)}
+        >
+          <input {...(getInputProps() as any)} />
           <div className='flex flex-col items-center'>
             <UploadIcon className='h-12 w-12 text-gray-400 mb-4' />
 

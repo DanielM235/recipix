@@ -13,9 +13,13 @@ interface AuthContextType {
   isLoading: boolean
 }
 
+interface AuthProviderProps {
+  readonly children: React.ReactNode
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -41,11 +45,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
+  const contextValue = React.useMemo(
+    () => ({ user, login, logout, isLoading }),
+    [user, isLoading, login, logout]
   )
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

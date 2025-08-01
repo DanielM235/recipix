@@ -9,7 +9,7 @@ import type {
 } from '../../../shared/types'
 
 class ApiService {
-  private api: AxiosInstance
+  private readonly api: AxiosInstance
 
   constructor() {
     this.api = axios.create({
@@ -37,7 +37,9 @@ class ApiService {
           localStorage.removeItem('auth_token')
           window.location.href = '/login'
         }
-        return Promise.reject(error)
+        return Promise.reject(
+          error instanceof Error ? error : new Error(error?.message || 'API error')
+        )
       }
     )
   }

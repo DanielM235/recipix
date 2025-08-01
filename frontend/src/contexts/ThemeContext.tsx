@@ -10,7 +10,11 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+interface ThemeProviderProps {
+  readonly children: React.ReactNode
+}
+
+export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem('theme') as Theme
     return stored || 'system'
@@ -48,9 +52,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme])
 
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme, isDark }}>{children}</ThemeContext.Provider>
-  )
+  const contextValue = React.useMemo(() => ({ theme, setTheme, isDark }), [theme, setTheme, isDark])
+
+  return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>
 }
 
 export function useTheme() {
