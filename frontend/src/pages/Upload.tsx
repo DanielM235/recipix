@@ -49,7 +49,9 @@ function Upload() {
     [t]
   )
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  // Create dropzone configuration with proper typing
+  // Note: Using type assertion due to react-dropzone v14 compatibility issues with React 18
+  const dropzoneConfig = {
     onDrop,
     accept: {
       'image/jpeg': ['.jpg', '.jpeg'],
@@ -58,7 +60,9 @@ function Upload() {
     },
     maxSize: 10 * 1024 * 1024, // 10MB
     multiple: true,
-  } as any)
+  } as unknown as Parameters<typeof useDropzone>[0]
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone(dropzoneConfig)
 
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index))
@@ -88,9 +92,9 @@ function Upload() {
           className={`border-2 border-dashed p-8 text-center cursor-pointer transition-colors ${
             isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
           }`}
-          {...(getRootProps() as any)}
+          {...getRootProps()}
         >
-          <input {...(getInputProps() as any)} />
+          <input {...(getInputProps() as React.InputHTMLAttributes<HTMLInputElement>)} />
           <div className='flex flex-col items-center'>
             <UploadIcon className='h-12 w-12 text-gray-400 mb-4' />
 

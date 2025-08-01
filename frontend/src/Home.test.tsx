@@ -23,11 +23,25 @@ jest.mock('react-i18next', () => ({
   })
 }))
 
+// Create a type for mock icon props that accepts only safe HTML attributes
+type MockIconProps = {
+  className?: string
+  'data-testid'?: string
+}
+
 jest.mock('lucide-react', () => ({
-  Upload: () => <div data-testid="upload-icon" />,
-  History: () => <div data-testid="history-icon" />,
-  Settings: () => <div data-testid="settings-icon" />,
-  FileText: () => <div data-testid="filetext-icon" />
+  Upload: ({ className, ...props }: MockIconProps) => (
+    <div data-testid="upload-icon" className={className} {...props} />
+  ),
+  History: ({ className, ...props }: MockIconProps) => (
+    <div data-testid="history-icon" className={className} {...props} />
+  ),
+  Settings: ({ className, ...props }: MockIconProps) => (
+    <div data-testid="settings-icon" className={className} {...props} />
+  ),
+  FileText: ({ className, ...props }: MockIconProps) => (
+    <div data-testid="filetext-icon" className={className} {...props} />
+  )
 }))
 
 const renderWithRouter = (component: React.ReactElement) => {
