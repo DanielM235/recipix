@@ -1,0 +1,92 @@
+{
+  "app": {
+    "title": "Recipix",
+    "subtitle": "Financial Receipt Processor",
+    "description": "Capture and process receipts for financial systems"
+  },
+  "navigation": {
+    "home": "Home",
+    "upload": "Upload",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "upload": {
+    "title": "Upload Receipt",
+    "description": "Upload an image or PDF of your receipt",
+    "dropzone": {
+      "title": "Drop files here or click to upload",
+      "subtitle": "Supports images (JPG, PNG) and PDF files up to 10MB",
+      "active": "Drop the files here..."
+    },
+    "preview": {
+      "title": "Preview",
+      "processing": "Processing...",
+      "retry": "Retry"
+    },
+    "form": {
+      "amount": "Amount",
+      "description": "Description",
+      "category": "Category",
+      "date": "Date",
+      "submit": "Send to Firefly III",
+      "cancel": "Cancel"
+    }
+  },
+  "history": {
+    "title": "Processing History",
+    "empty": "No receipts processed yet",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "english": "English",
+      "portuguese": "Português (Brasil)"
+    },
+    "theme": {
+      "title": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "firefly": {
+      "title": "Firefly III Integration",
+      "url": "Server URL",
+      "token": "Personal Access Token",
+      "test": "Test Connection",
+      "connected": "Connected",
+      "disconnected": "Disconnected"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "retry": "Retry",
+    "close": "Close"
+  },
+  "errors": {
+    "fileTooBig": "File is too large. Maximum size is 10MB.",
+    "fileTypeNotSupported": "File type not supported. Please use JPG, PNG, or PDF.",
+    "uploadFailed": "Upload failed. Please try again.",
+    "connectionFailed": "Connection failed. Please check your settings.",
+    "invalidToken": "Invalid access token.",
+    "networkError": "Network error. Please check your connection."
+  },
+  "success": {
+    "uploaded": "Receipt uploaded successfully",
+    "processed": "Receipt processed successfully",
+    "saved": "Settings saved successfully",
+    "connected": "Successfully connected to Firefly III"
+  }
+}

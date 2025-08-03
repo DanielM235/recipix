@@ -1,0 +1,42 @@
+{
+  "name": "recipix",
+  "version": "0.0.1",
+  "description": "Multilingual PWA for financial systems integration with receipt processing",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "test": "npm run test --workspaces",
+    "test:backend": "npm run test --workspace=backend",
+    "test:frontend": "npm run test --workspace=frontend",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "format": "npm run format --workspace=backend && npm run format --workspace=frontend",
+    "format:check": "npm run format:check --workspace=backend && npm run format:check --workspace=frontend",
+    "format:lint": "npm run format:lint --workspace=backend && npm run format:lint --workspace=frontend"
+  },
+  "keywords": [
+    "pwa",
+    "react",
+    "typescript",
+    "firefly-iii",
+    "financial",
+    "ocr",
+    "receipts"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
