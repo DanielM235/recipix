@@ -15,6 +15,7 @@ import logger from './utils/logger'
 import healthRouter from './routes/health'
 import receiptsRouter from './routes/receipts'
 import connectorsRouter from './routes/connectors'
+import authRouter from './routes/auth'
 
 // Load environment variables
 dotenv.config()
@@ -63,6 +64,7 @@ app.use(
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
 // API Routes
+app.use('/api/auth', authRouter)
 app.use('/api/health', healthRouter)
 app.use('/api/receipts', receiptsRouter)
 app.use('/api/connectors', connectorsRouter)
