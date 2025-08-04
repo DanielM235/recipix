@@ -8,7 +8,9 @@
     "home": "Início",
     "upload": "Upload",
     "history": "Histórico",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "profile": "Perfil",
+    "logout": "Sair"
   },
   "upload": {
     "title": "Enviar Recibo",
@@ -64,6 +66,41 @@
       "disconnected": "Desconectado"
     }
   },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "name": "Nome Completo",
+    "hasAccount": "Já tem uma conta?",
+    "noAccount": "Não tem uma conta?",
+    "passwordMismatch": "As senhas não coincidem",
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+    "nameRequired": "Nome é obrigatório",
+    "genericError": "Ocorreu um erro. Tente novamente."
+  },
+  "profile": {
+    "title": "Perfil",
+    "subtitle": "Informações da sua conta",
+    "logout": "Sair",
+    "name": "Nome",
+    "email": "E-mail",
+    "role": "Função",
+    "roleAdmin": "Administrador",
+    "roleUser": "Usuário",
+    "accountType": "Tipo de Conta",
+    "administratorAccount": "Conta de Administrador",
+    "standardAccount": "Conta Padrão",
+    "memberSince": "Membro desde",
+    "permissions": "Permissões",
+    "permissionUpload": "Enviar e processar recibos",
+    "permissionHistory": "Visualizar histórico pessoal",
+    "permissionManageConnectors": "Gerenciar conectores para todos os usuários",
+    "permissionViewAllUsers": "Visualizar dados de todos os usuários",
+    "adminNote": "Conta de Administrador",
+    "adminDescription": "Como administrador, você tem acesso total ao sistema, incluindo gerenciamento de conectores e usuários."
+  },
   "common": {
     "save": "Salvar",
     "cancel": "Cancelar",
@@ -73,7 +110,8 @@
     "error": "Erro",
     "success": "Sucesso",
     "retry": "Tentar novamente",
-    "close": "Fechar"
+    "close": "Fechar",
+    "notAvailable": "Não disponível"
   },
   "errors": {
     "fileTooBig": "Arquivo muito grande. Tamanho máximo é 10MB.",

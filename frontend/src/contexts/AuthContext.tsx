@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { UserRole } from '../../../shared/enums';
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'USER' | 'ADMIN';
+  role: UserRole;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         delete axios.defaults.headers.common['Authorization'];
       }
     } catch (error) {
+      console.error('Token validation failed:', error);
       localStorage.removeItem('authToken');
       delete axios.defaults.headers.common['Authorization'];
     } finally {
@@ -126,7 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const isAuthenticated = user !== null;
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const contextValue = React.useMemo(
     () => ({

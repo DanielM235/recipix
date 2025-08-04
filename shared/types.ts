@@ -1,5 +1,4 @@
 // Shared types between frontend and backend
-
 export interface Receipt {
   id: string
   filename: string
@@ -68,6 +67,8 @@ export interface ProcessingStatus {
 }
 
 export interface ConnectorConfig {
+  id?: string
+  userId?: string
   type: 'firefly' | 'xero' | 'erp'
   name: string
   baseUrl: string
@@ -77,6 +78,8 @@ export interface ConnectorConfig {
   accessToken?: string
   refreshToken?: string
   isActive: boolean
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface Settings {

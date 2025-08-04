@@ -1,43 +1,18 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { v4 as uuidv4 } from 'uuid'
 import logger from '../utils/logger'
+import database, { DatabaseUser } from '../utils/database'
+import { authenticateToken } from '../middleware/auth'
+import { UserRole } from '../../../shared/enums'
 
+// Authentication routes
 const router = Router()
-
-// Mock user database - replace with real database
-interface User {
-  id: string
-  email: string
-  password: string
-  name: string
-  role: 'USER' | 'ADMIN'
-  createdAt: Date
-}
-
-// Mock users for demo
-const mockUsers: User[] = [
-  {
-    id: 'user-1',
-    email: 'admin@recipix.com',
-    password: '$2a$10$N9qo8uLOickgx2ZMRZoMye9JpTlHH7N1d.W.UpZ8X2Zi3K0OKGUoW', // 'admin123'
-    name: 'Admin User',
-    role: 'ADMIN',
-    createdAt: new Date(),
-  },
-  {
-    id: 'user-2',
-    email: 'user@recipix.com',
-    password: '$2a$10$N9qo8uLOickgx2ZMRZoMye9JpTlHH7N1d.W.UpZ8X2Zi3K0OKGUoW', // 'user123'
-    name: 'Regular User',
-    role: 'USER',
-    createdAt: new Date(),
-  }
-]
 
 /**
  * @route   POST /api/auth/login
- * @desc    Authenticate user and return JWT token
+ * @desc    Authenticate user & get token
  * @access  Public
  */
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
@@ -47,52 +22,61 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email and password are required'
+        error: 'Email and password are required'
       })
     }
 
-    // Find user by email
-    const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-      })
-    }
-
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password)
-    if (!isValidPassword) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-      })
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    )
-
-    logger.info(`User logged in: ${user.email} (${user.role})`)
-
-    res.json({
-      success: true,
-      data: {
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        }
+    // Find user in database
+    database.getUserByEmail(email.toLowerCase(), async (err, user) => {
+      if (err) {
+        logger.error('Database error during login:', err)
+        return res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        })
       }
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid credentials'
+        })
+      }
+
+      // Check password
+      const isValidPassword = await bcrypt.compare(password, user.password)
+      if (!isValidPassword) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid credentials'
+        })
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          email: user.email, 
+          role: user.role 
+        },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      )
+
+      logger.info(`User logged in: ${user.email}`)
+
+      res.json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          },
+          token
+        }
+      })
     })
   } catch (error) {
     logger.error('Login error:', error)
@@ -102,7 +86,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
 /**
  * @route   POST /api/auth/register
- * @desc    Register a new user
+ * @desc    Register new user
  * @access  Public
  */
 router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
@@ -112,58 +96,81 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
     if (!email || !password || !name) {
       return res.status(400).json({
         success: false,
-        message: 'Email, password, and name are required'
+        error: 'Email, password, and name are required'
+      })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 6 characters long'
       })
     }
 
     // Check if user already exists
-    const existingUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists'
-      })
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10)
-
-    // Create new user (first user is admin, others are users)
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      name,
-      role: mockUsers.length === 0 ? 'ADMIN' : 'USER',
-      createdAt: new Date()
-    }
-
-    mockUsers.push(newUser)
-
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: newUser.id,
-        email: newUser.email,
-        role: newUser.role
-      },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    )
-
-    logger.info(`New user registered: ${newUser.email} (${newUser.role})`)
-
-    res.status(201).json({
-      success: true,
-      data: {
-        token,
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          role: newUser.role
-        }
+    database.getUserByEmail(email.toLowerCase(), async (err, existingUser) => {
+      if (err) {
+        logger.error('Database error during registration:', err)
+        return res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        })
       }
+
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          error: 'User with this email already exists'
+        })
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // Create new user
+      const newUser: Omit<DatabaseUser, 'createdAt' | 'updatedAt'> = {
+        id: uuidv4(),
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        name: name.trim(),
+        role: UserRole.USER // All new users start as regular users
+      }
+
+      database.createUser(newUser, (createErr, userId) => {
+        if (createErr) {
+          logger.error('Error creating user:', createErr)
+          return res.status(500).json({
+            success: false,
+            error: 'Failed to create user'
+          })
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+          { 
+            id: newUser.id, 
+            email: newUser.email, 
+            role: newUser.role 
+          },
+          process.env.JWT_SECRET || 'your-secret-key',
+          { expiresIn: '24h' }
+        )
+
+        logger.info(`New user registered: ${newUser.email}`)
+
+        res.status(201).json({
+          success: true,
+          data: {
+            user: {
+              id: newUser.id,
+              email: newUser.email,
+              name: newUser.name,
+              role: newUser.role
+            },
+            token
+          }
+        })
+      })
     })
   } catch (error) {
     logger.error('Registration error:', error)
@@ -173,46 +180,51 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
 
 /**
  * @route   GET /api/auth/me
- * @desc    Get current user profile
+ * @desc    Get current user info
  * @access  Private
  */
-router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/me', authenticateToken, (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization
-    const token = authHeader?.split(' ')[1]
-
-    if (!token) {
+    if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'Access token required'
+        error: 'User not authenticated'
       })
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
-    const user = mockUsers.find(u => u.id === decoded.id)
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      })
-    }
-
-    res.json({
-      success: true,
-      data: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
+    // Get fresh user data from database
+    database.getUserById(req.user.id, (err, user) => {
+      if (err) {
+        logger.error('Database error getting user:', err)
+        return res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        })
       }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found'
+        })
+      }
+
+      res.json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: user.createdAt
+          }
+        }
+      })
     })
   } catch (error) {
-    logger.error('Get profile error:', error)
-    return res.status(403).json({
-      success: false,
-      message: 'Invalid token'
-    })
+    logger.error('Get user error:', error)
+    next(error)
   }
 })
 

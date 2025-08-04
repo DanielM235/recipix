@@ -59,6 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         delete axios.defaults.headers.common['Authorization']
       }
     } catch (error) {
+      console.error('Token validation failed:', error)
       localStorage.removeItem('authToken')
       delete axios.defaults.headers.common['Authorization']
     } finally {

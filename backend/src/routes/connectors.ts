@@ -3,6 +3,7 @@ import axios from 'axios'
 import logger from '../utils/logger'
 import { ConnectorConfig } from '../../../shared/types'
 import { authenticateToken, requireAdmin, requireUserOrAdmin } from '../middleware/auth'
+import { UserRole } from '../../../shared/enums'
 
 const router = Router()
 
@@ -60,7 +61,7 @@ router.post('/', requireAdmin, async (req: Request, res: Response, next: NextFun
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
-    const isAdmin = req.user?.role === 'ADMIN'
+    const isAdmin = req.user?.role === UserRole.ADMIN
 
     // TODO: Fetch from database with proper filtering
     const connectors = [

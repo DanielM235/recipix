@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import logger from '../utils/logger'
+import { UserRole } from '../../../shared/enums'
 
 export interface AuthenticatedUser {
   id: string
   email: string
-  role: 'USER' | 'ADMIN'
+  role: UserRole
 }
 
 // Extend Express Request type to include user
@@ -49,10 +50,10 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
     })
   }
 
-  if (req.user.role !== 'ADMIN') {
+  if (req.user.role !== UserRole.ADMIN) {
     return res.status(403).json({ 
       success: false, 
-      message: 'Admin privileges required' 
+      message: 'Admin access required' 
     })
   }
 
@@ -67,14 +68,7 @@ export const requireUserOrAdmin = (req: Request, res: Response, next: NextFuncti
     })
   }
 
-  // Allow if user is admin OR if accessing own resources
-  const userId = req.params.userId || req.body.userId
-  if (req.user.role === 'ADMIN' || req.user.id === userId) {
-    next()
-  } else {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Access denied' 
-    })
-  }
+  // This middleware allows both USER and ADMIN roles
+  // Additional logic can be added if needed
+  next()
 }

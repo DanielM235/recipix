@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import Upload from './pages/Upload'
 import History from './pages/History'
 import Settings from './pages/Settings'
+import Profile from './pages/Profile'
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -38,6 +39,7 @@ function AppContent() {
             <Route path='/upload' element={<Upload />} />
             <Route path='/history' element={<History />} />
             <Route path='/settings' element={<Settings />} />
+            <Route path='/profile' element={<Profile />} />
           </Routes>
         </Layout>
         <Toaster
