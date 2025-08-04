@@ -1,9 +1,9 @@
-import { Router, Request, Response, NextFunction } from 'express'
 import axios from 'axios'
-import logger from '../utils/logger'
-import { ConnectorConfig } from '../../../shared/types'
-import { authenticateToken, requireAdmin, requireUserOrAdmin } from '../middleware/auth'
+import { NextFunction, Request, Response, Router } from 'express'
 import { UserRole } from '../../../shared/enums'
+import { ConnectorConfig } from '../../../shared/types'
+import { authenticateToken, requireAdmin } from '../middleware/auth'
+import logger from '../utils/logger'
 
 const router = Router()
 
@@ -33,7 +33,9 @@ router.post('/', requireAdmin, async (req: Request, res: Response, next: NextFun
       updatedAt: new Date(),
     }
 
-    logger.info(`Created connector configuration: ${type} for user: ${connectorConfig.userId} by admin: ${req.user?.email}`)
+    logger.info(
+      `Created connector configuration: ${type} for user: ${connectorConfig.userId} by admin: ${req.user?.email}`
+    )
 
     res.json({
       success: true,
@@ -79,7 +81,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     ]
 
     // Filter connectors based on role
-    const filteredConnectors = isAdmin 
+    const filteredConnectors = isAdmin
       ? connectors // Admin sees all
       : connectors.filter(conn => conn.userId === userId) // User sees only own
 
@@ -100,8 +102,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/:id/test', async (req: Request, res: Response, next: NextFunction) => {
   try {
     // TODO: Get userId from JWT token
-    const userId = 'temp-user-id' // req.user?.id
-    const { id } = req.params
+    // const _userId = 'temp-user-id' // req.user?.id
+    // const { id: _id } = req.params
 
     // TODO: Fetch connector config from database
     // const config = await getConnectorConfig(id, userId)
@@ -231,7 +233,11 @@ async function testFireflyConnection(
       return { connected: false, message: `Unexpected response: ${response.status}` }
     }
   } catch (error: unknown) {
-    const err = error as any // Type assertion for error object
+    const err = error as {
+      response?: { status: number; data?: { message?: string } }
+      code?: string
+      message?: string
+    }
     if (err.response) {
       return {
         connected: false,

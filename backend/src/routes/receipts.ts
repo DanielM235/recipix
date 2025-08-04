@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
   },
 })
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: unknown, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Accept images and PDFs only
   if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
     cb(null, true)
@@ -285,10 +285,11 @@ async function processPDF(filePath: string): Promise<OCRData> {
 
 function extractDataFromText(text: string) {
   // Simple extraction logic - in production, use more sophisticated NLP
-  const extractedData: any = {}
+  const extractedData: Record<string, unknown> = {}
 
   // Extract amount (simple regex for currency)
-  const amountMatch = text.match(/\$?\d+[.,]\d{2}|\$\d+/)
+  const amountRegex = /\$?\d+[.,]\d{2}|\$\d+/
+  const amountMatch = amountRegex.exec(text)
   if (amountMatch) {
     extractedData.amount = parseFloat(amountMatch[0].replace('$', '').replace(',', '.'))
   }

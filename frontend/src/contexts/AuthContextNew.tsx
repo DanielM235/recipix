@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 export interface User {
   id: string
@@ -10,8 +10,8 @@ export interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name: string) => Promise<void>
+  login: (_email: string, _password: string) => Promise<void>
+  register: (_email: string, _password: string, _name: string) => Promise<void>
   logout: () => void
   isLoading: boolean
   isAuthenticated: boolean
@@ -58,8 +58,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.removeItem('authToken')
         delete axios.defaults.headers.common['Authorization']
       }
-    } catch (error) {
-      console.error('Token validation failed:', error)
+    } catch {
+      // Token validation failed, clear auth state
       localStorage.removeItem('authToken')
       delete axios.defaults.headers.common['Authorization']
     } finally {
@@ -83,8 +83,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         throw new Error(response.data.error || 'Login failed')
       }
-    } catch (error: any) {
-      if (error.response?.data?.error) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response?.data?.error) {
         throw new Error(error.response.data.error)
       }
       throw new Error('Login failed. Please check your credentials.')
@@ -110,8 +110,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         throw new Error(response.data.error || 'Registration failed')
       }
-    } catch (error: any) {
-      if (error.response?.data?.error) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response?.data?.error) {
         throw new Error(error.response.data.error)
       }
       throw new Error('Registration failed. Please try again.')
@@ -130,14 +130,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAdmin = user?.role === 'ADMIN'
 
   const contextValue = React.useMemo(
-    () => ({ 
-      user, 
-      login, 
-      register, 
-      logout, 
-      isLoading, 
-      isAuthenticated, 
-      isAdmin 
+    () => ({
+      user,
+      login,
+      register,
+      logout,
+      isLoading,
+      isAuthenticated,
+      isAdmin,
     }),
     [user, isLoading, isAuthenticated, isAdmin]
   )
@@ -145,6 +145,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {

@@ -22,7 +22,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Email and password are required'
+        error: 'Email and password are required',
       })
     }
 
@@ -32,14 +32,14 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         logger.error('Database error during login:', err)
         return res.status(500).json({
           success: false,
-          error: 'Internal server error'
+          error: 'Internal server error',
         })
       }
 
       if (!user) {
         return res.status(401).json({
           success: false,
-          error: 'Invalid credentials'
+          error: 'Invalid credentials',
         })
       }
 
@@ -48,16 +48,16 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       if (!isValidPassword) {
         return res.status(401).json({
           success: false,
-          error: 'Invalid credentials'
+          error: 'Invalid credentials',
         })
       }
 
       // Generate JWT token
       const token = jwt.sign(
-        { 
-          id: user.id, 
-          email: user.email, 
-          role: user.role 
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
         },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '24h' }
@@ -72,10 +72,10 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role
+            role: user.role,
           },
-          token
-        }
+          token,
+        },
       })
     })
   } catch (error) {
@@ -96,14 +96,14 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
     if (!email || !password || !name) {
       return res.status(400).json({
         success: false,
-        error: 'Email, password, and name are required'
+        error: 'Email, password, and name are required',
       })
     }
 
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        error: 'Password must be at least 6 characters long'
+        error: 'Password must be at least 6 characters long',
       })
     }
 
@@ -113,14 +113,14 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
         logger.error('Database error during registration:', err)
         return res.status(500).json({
           success: false,
-          error: 'Internal server error'
+          error: 'Internal server error',
         })
       }
 
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          error: 'User with this email already exists'
+          error: 'User with this email already exists',
         })
       }
 
@@ -133,24 +133,24 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
         email: email.toLowerCase(),
         password: hashedPassword,
         name: name.trim(),
-        role: UserRole.USER // All new users start as regular users
+        role: UserRole.USER, // All new users start as regular users
       }
 
-      database.createUser(newUser, (createErr, userId) => {
+      database.createUser(newUser, (createErr, _userId) => {
         if (createErr) {
           logger.error('Error creating user:', createErr)
           return res.status(500).json({
             success: false,
-            error: 'Failed to create user'
+            error: 'Failed to create user',
           })
         }
 
         // Generate JWT token
         const token = jwt.sign(
-          { 
-            id: newUser.id, 
-            email: newUser.email, 
-            role: newUser.role 
+          {
+            id: newUser.id,
+            email: newUser.email,
+            role: newUser.role,
           },
           process.env.JWT_SECRET || 'your-secret-key',
           { expiresIn: '24h' }
@@ -165,10 +165,10 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
               id: newUser.id,
               email: newUser.email,
               name: newUser.name,
-              role: newUser.role
+              role: newUser.role,
             },
-            token
-          }
+            token,
+          },
         })
       })
     })
@@ -188,7 +188,7 @@ router.get('/me', authenticateToken, (req: Request, res: Response, next: NextFun
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       })
     }
 
@@ -198,14 +198,14 @@ router.get('/me', authenticateToken, (req: Request, res: Response, next: NextFun
         logger.error('Database error getting user:', err)
         return res.status(500).json({
           success: false,
-          error: 'Internal server error'
+          error: 'Internal server error',
         })
       }
 
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: 'User not found'
+          error: 'User not found',
         })
       }
 
@@ -217,9 +217,9 @@ router.get('/me', authenticateToken, (req: Request, res: Response, next: NextFun
             email: user.email,
             name: user.name,
             role: user.role,
-            createdAt: user.createdAt
-          }
-        }
+            createdAt: user.createdAt,
+          },
+        },
       })
     })
   } catch (error) {

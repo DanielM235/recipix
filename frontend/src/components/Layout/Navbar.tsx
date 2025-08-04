@@ -1,15 +1,15 @@
+import { Globe, LogOut, Menu, Moon, Settings, Sun, User, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router-dom'
-import { Menu, X, Sun, Moon, Globe, User, LogOut, Settings } from 'lucide-react'
-import { useTheme } from '../../contexts/ThemeContext'
-import { useAuth } from '../../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { UserRole } from '../../../../shared/enums'
+import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 function Navbar() {
   const { t, i18n } = useTranslation()
   const { setTheme, isDark } = useTheme()
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const navigate = useNavigate()
@@ -54,46 +54,48 @@ function Navbar() {
           {/* Desktop Actions */}
           <div className='hidden md:flex items-center space-x-4'>
             {/* User Menu */}
-            <div className="relative">
+            <div className='relative'>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center space-x-2 p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className='flex items-center space-x-2 p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'
               >
-                <User className="h-5 w-5" />
-                <span className="text-sm font-medium">{user?.name}</span>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                  user?.role === UserRole.ADMIN 
-                    ? 'bg-purple-100 text-purple-800' 
-                    : 'bg-green-100 text-green-800'
-                }`}>
+                <User className='h-5 w-5' />
+                <span className='text-sm font-medium'>{user?.name}</span>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                    user?.role === UserRole.ADMIN
+                      ? 'bg-purple-100 text-purple-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}
+                >
                   {user?.role}
                 </span>
               </button>
 
               {/* User Dropdown */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                  <div className="py-1">
+                <div className='absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50'>
+                  <div className='py-1'>
                     <button
                       onClick={handleProfileClick}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className='flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                     >
-                      <User className="h-4 w-4 mr-3" />
+                      <User className='h-4 w-4 mr-3' />
                       {t('navigation.profile')}
                     </button>
                     <button
                       onClick={handleSettingsClick}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className='flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                     >
-                      <Settings className="h-4 w-4 mr-3" />
+                      <Settings className='h-4 w-4 mr-3' />
                       {t('navigation.settings')}
                     </button>
-                    <div className="border-t border-gray-100 dark:border-gray-600"></div>
+                    <div className='border-t border-gray-100 dark:border-gray-600'></div>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className='flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                     >
-                      <LogOut className="h-4 w-4 mr-3" />
+                      <LogOut className='h-4 w-4 mr-3' />
                       {t('navigation.logout')}
                     </button>
                   </div>

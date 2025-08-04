@@ -8,12 +8,7 @@ const Auth: React.FC = () => {
     setIsRegisterMode(!isRegisterMode)
   }
 
-  return (
-    <LoginForm 
-      onToggleMode={toggleMode} 
-      isRegisterMode={isRegisterMode} 
-    />
-  )
+  return <LoginForm onToggleMode={toggleMode} isRegisterMode={isRegisterMode} />
 }
 
 export default Auth

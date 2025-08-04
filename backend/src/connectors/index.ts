@@ -30,9 +30,10 @@ export class FireflyConnector implements ExpenseConnector {
       })
 
       return { connected: true, message: 'Successfully connected to Firefly III' }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { message?: string }
       logger.error('Firefly connection test failed:', error)
-      return { connected: false, message: error.message || 'Connection failed' }
+      return { connected: false, message: err.message || 'Connection failed' }
     }
   }
 
@@ -85,9 +86,10 @@ export class FireflyConnector implements ExpenseConnector {
       } else {
         throw new Error(`Unexpected response status: ${response.status}`)
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { message?: string }
       logger.error('Failed to submit expense to Firefly III:', error)
-      throw new Error(`Firefly III submission failed: ${error.message}`)
+      throw new Error(`Firefly III submission failed: ${err.message}`)
     }
   }
 }

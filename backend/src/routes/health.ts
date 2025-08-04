@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express'
+import logger from '../utils/logger'
 
 const router = Router()
 
@@ -48,8 +49,6 @@ router.get('/detailed', async (req: Request, res: Response) => {
     })
   } catch (error) {
     // Log the error using Winston or your logger
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const logger = require('../utils/logger').default
     logger.error('Detailed health check failed:', error)
 
     res.status(503).json({

@@ -49,7 +49,7 @@ export default [
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],
       'curly': ['error', 'all'],
-      'no-console': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-undef': 'off', // TypeScript handles this
     },
   },

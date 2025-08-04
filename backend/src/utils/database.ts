@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3'
 import bcrypt from 'bcryptjs'
 import path from 'path'
+import logger from './logger'
 import { UserRole } from '../../../shared/enums'
 
 export interface DatabaseUser {
@@ -18,11 +19,11 @@ class Database {
 
   constructor() {
     const dbPath = path.join(__dirname, '../../data/recipix.db')
-    this.db = new sqlite3.Database(dbPath, (err) => {
+    this.db = new sqlite3.Database(dbPath, err => {
       if (err) {
-        console.error('Error opening database:', err)
+        logger.error('Error opening database:', err)
       } else {
-        console.log('Connected to SQLite database')
+        logger.info('Connected to SQLite database')
         this.initTables()
       }
     })
@@ -30,7 +31,8 @@ class Database {
 
   private initTables(): void {
     // Create users table
-    this.db.run(`
+    this.db.run(
+      `
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
@@ -40,14 +42,16 @@ class Database {
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
       )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating users table:', err)
-      } else {
-        // Check if we need to create default admin user
-        this.createDefaultUsers()
+    `,
+      err => {
+        if (err) {
+          logger.error('Error creating users table:', err)
+        } else {
+          // Check if we need to create default admin user
+          this.createDefaultUsers()
+        }
       }
-    })
+    )
 
     // Create connectors table for future use
     this.db.run(`
@@ -79,10 +83,10 @@ class Database {
           email: 'admin@recipix.com',
           password: bcrypt.hashSync('admin123', 10),
           name: 'Admin User',
-          role: UserRole.ADMIN
+          role: UserRole.ADMIN,
         }
         this.createUser(adminUser, () => {
-          console.log('Created default admin user: admin@recipix.com / admin123')
+          logger.info('Created default admin user: admin@recipix.com / admin123')
         })
       }
     })
@@ -95,20 +99,23 @@ class Database {
           email: 'user@recipix.com',
           password: bcrypt.hashSync('user123', 10),
           name: 'Regular User',
-          role: UserRole.USER
+          role: UserRole.USER,
         }
         this.createUser(regularUser, () => {
-          console.log('Created default user: user@recipix.com / user123')
+          logger.info('Created default user: user@recipix.com / user123')
         })
       }
     })
   }
 
-  public getUserByEmail(email: string, callback: (err: Error | null, user?: DatabaseUser) => void): void {
+  public getUserByEmail(
+    email: string,
+    callback: (err: Error | null, user?: DatabaseUser) => void
+  ): void {
     this.db.get(
       'SELECT * FROM users WHERE email = ?',
       [email],
-      (err: Error | null, row: any) => {
+      (err: Error | null, row: unknown) => {
         if (err) {
           callback(err)
         } else {
@@ -119,26 +126,25 @@ class Database {
   }
 
   public getUserById(id: string, callback: (err: Error | null, user?: DatabaseUser) => void): void {
-    this.db.get(
-      'SELECT * FROM users WHERE id = ?',
-      [id],
-      (err: Error | null, row: any) => {
-        if (err) {
-          callback(err)
-        } else {
-          callback(null, row as DatabaseUser)
-        }
+    this.db.get('SELECT * FROM users WHERE id = ?', [id], (err: Error | null, row: unknown) => {
+      if (err) {
+        callback(err)
+      } else {
+        callback(null, row as DatabaseUser)
       }
-    )
+    })
   }
 
-  public createUser(user: Omit<DatabaseUser, 'createdAt' | 'updatedAt'>, callback: (err: Error | null, userId?: string) => void): void {
+  public createUser(
+    user: Omit<DatabaseUser, 'createdAt' | 'updatedAt'>,
+    callback: (err: Error | null, userId?: string) => void
+  ): void {
     const now = new Date().toISOString()
     this.db.run(
       `INSERT INTO users (id, email, password, name, role, createdAt, updatedAt) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [user.id, user.email, user.password, user.name, user.role, now, now],
-      function(err: Error | null) {
+      function (err: Error | null) {
         if (err) {
           callback(err)
         } else {
@@ -148,25 +154,27 @@ class Database {
     )
   }
 
-  public updateUser(id: string, updates: Partial<DatabaseUser>, callback: (err: Error | null) => void): void {
+  public updateUser(
+    id: string,
+    updates: Partial<DatabaseUser>,
+    callback: (err: Error | null) => void
+  ): void {
     const now = new Date().toISOString()
-    const updateFields = Object.keys(updates).map(key => `${key} = ?`).join(', ')
+    const updateFields = Object.keys(updates)
+      .map(key => `${key} = ?`)
+      .join(', ')
     const values = Object.values(updates)
     values.push(now, id) // Add updatedAt and id for WHERE clause
 
-    this.db.run(
-      `UPDATE users SET ${updateFields}, updatedAt = ? WHERE id = ?`,
-      values,
-      callback
-    )
+    this.db.run(`UPDATE users SET ${updateFields}, updatedAt = ? WHERE id = ?`, values, callback)
   }
 
   public close(): void {
-    this.db.close((err) => {
+    this.db.close(err => {
       if (err) {
-        console.error('Error closing database:', err)
+        logger.error('Error closing database:', err)
       } else {
-        console.log('Database connection closed')
+        logger.info('Database connection closed')
       }
     })
   }
