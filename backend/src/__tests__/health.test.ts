@@ -1,7 +1,14 @@
 import request from 'supertest'
 import app from '../index'
+import { clearLoggerMocks } from './helpers/mockLogger'
+
+// Mock logger to prevent console pollution during tests
+jest.mock('../utils/logger', () => require('./helpers/mockLogger').default)
 
 describe('Health Endpoints', () => {
+  beforeEach(() => {
+    clearLoggerMocks()
+  })
   describe('GET /api/health', () => {
     it('should return basic health status', async () => {
       const response = await request(app).get('/api/health').expect(200)
