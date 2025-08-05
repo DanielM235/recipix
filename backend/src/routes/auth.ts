@@ -19,27 +19,36 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
   try {
     const { email, password } = req.body
 
-    if (!email || !password) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        error: 'Email and password are required',
+        error: { message: 'Email is required' },
+      })
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Password is required' },
       })
     }
 
     // Find user in database
     database.getUserByEmail(email.toLowerCase(), async (err, user) => {
       if (err) {
-        logger.error('Database error during login:', err)
+        logger.error('Error during user login:', err)
         return res.status(500).json({
           success: false,
-          error: 'Internal server error',
+          error: { message: 'Internal server error' },
         })
       }
 
       if (!user) {
+        // Prevent timing attacks by always doing a bcrypt compare
+        await bcrypt.compare('dummy', '$2a$10$dummyhash')
         return res.status(401).json({
           success: false,
-          error: 'Invalid credentials',
+          error: { message: 'Invalid credentials' },
         })
       }
 
@@ -48,7 +57,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       if (!isValidPassword) {
         return res.status(401).json({
           success: false,
-          error: 'Invalid credentials',
+          error: { message: 'Invalid credentials' },
         })
       }
 
@@ -93,34 +102,57 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
   try {
     const { email, password, name } = req.body
 
-    if (!email || !password || !name) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        error: 'Email, password, and name are required',
+        error: { message: 'Email is required' },
+      })
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Password is required' },
+      })
+    }
+
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Name is required' },
+      })
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Valid email is required' },
       })
     }
 
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        error: 'Password must be at least 6 characters long',
+        error: { message: 'Password must be at least 6 characters' },
       })
     }
 
     // Check if user already exists
     database.getUserByEmail(email.toLowerCase(), async (err, existingUser) => {
       if (err) {
-        logger.error('Database error during registration:', err)
+        logger.error('Error during user registration:', err)
         return res.status(500).json({
           success: false,
-          error: 'Internal server error',
+          error: { message: 'Internal server error' },
         })
       }
 
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          error: 'User with this email already exists',
+          error: { message: 'User already exists' },
         })
       }
 
@@ -136,12 +168,12 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
         role: UserRole.USER, // All new users start as regular users
       }
 
-      database.createUser(newUser, (createErr, _userId) => {
+      database.createUser(newUser, (createErr, createdUser) => {
         if (createErr) {
-          logger.error('Error creating user:', createErr)
+          logger.error('Error during user registration:', createErr)
           return res.status(500).json({
             success: false,
-            error: 'Failed to create user',
+            error: { message: 'Internal server error' },
           })
         }
 
@@ -188,24 +220,70 @@ router.get('/me', authenticateToken, (req: Request, res: Response, next: NextFun
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: 'User not authenticated',
+        error: { message: 'User not authenticated' },
       })
     }
 
     // Get fresh user data from database
     database.getUserById(req.user.id, (err, user) => {
       if (err) {
-        logger.error('Database error getting user:', err)
+        logger.error('Error fetching user profile:', err)
         return res.status(500).json({
           success: false,
-          error: 'Internal server error',
+          error: { message: 'Internal server error' },
         })
       }
 
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: 'User not found',
+          error: { message: 'User not found' },
+        })
+      }
+
+      res.json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: user.createdAt,
+          },
+        },
+      })
+    })
+  } catch (error) {
+    logger.error('Get user error:', error)
+    next(error)
+  }
+})
+
+// Add profile alias for backward compatibility
+router.get('/profile', authenticateToken, (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'User not authenticated' },
+      })
+    }
+
+    // Get fresh user data from database
+    database.getUserById(req.user.id, (err, user) => {
+      if (err) {
+        logger.error('Error fetching user profile:', err)
+        return res.status(500).json({
+          success: false,
+          error: { message: 'Internal server error' },
+        })
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: { message: 'User not found' },
         })
       }
 
