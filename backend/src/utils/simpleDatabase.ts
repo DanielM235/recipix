@@ -24,8 +24,11 @@ export async function initializeSimpleDatabase(): Promise<void> {
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `, (err) => {
-        if (err) reject(err)
-        else resolve()
+        if (err) {
+            reject(err)
+        } else {
+            resolve()
+        }
       })
     })
   } finally {

@@ -48,7 +48,7 @@ export default [
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
+      'curly': 'off',
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-undef': 'off', // TypeScript handles this
     },

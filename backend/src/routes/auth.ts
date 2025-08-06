@@ -44,8 +44,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       }
 
       if (!user) {
-        // Prevent timing attacks by always doing a bcrypt compare
-        await bcrypt.compare('dummy', '$2a$10$dummyhash')
+        // Prevent timing attacks by always doing a bcrypt compare with proper dummy hash
+        await bcrypt.compare('dummy', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy')
         return res.status(401).json({
           success: false,
           error: { message: 'Invalid credentials' },
@@ -168,7 +168,7 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
         role: UserRole.USER, // All new users start as regular users
       }
 
-      database.createUser(newUser, (createErr, createdUser) => {
+      database.createUser(newUser, (createErr, _createdUser) => {
         if (createErr) {
           logger.error('Error during user registration:', createErr)
           return res.status(500).json({

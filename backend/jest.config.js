@@ -29,4 +29,8 @@ module.exports = {
   },
   // Set environment variables for tests
   setupFiles: ['<rootDir>/src/testEnv.ts'],
+  // Force exit after tests complete to prevent hanging
+  forceExit: true,
+  // Detect open handles but don't prevent exit
+  detectOpenHandles: true,
 }
