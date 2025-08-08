@@ -25,7 +25,7 @@ describe('Error Handling Integration', () => {
 
       // All requests should complete (no crashes)
       const statusCodes = responses.map(r => r.status)
-      
+
       // Check that all requests completed without server crashes
       expect(statusCodes.length).toBe(15)
       // During rapid requests, we might get various responses:

@@ -1,11 +1,5 @@
 import { Knex } from 'knex'
-import { 
-  User, 
-  UserCreateInput, 
-  UserUpdateInput, 
-  UserPublic, 
-  UserEntity 
-} from '../entities'
+import { User, UserCreateInput, UserUpdateInput, UserPublic, UserEntity } from '../entities'
 import logger from '../../utils/logger'
 
 export class UserRepository {
@@ -24,16 +18,14 @@ export class UserRepository {
       name: row.name,
       role: row.role,
       createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at)
+      updatedAt: new Date(row.updated_at),
     }
   }
 
   async findById(id: string): Promise<User | null> {
     try {
-      const row = await this.db(UserEntity.TABLE_NAME)
-        .where(UserEntity.COLUMNS.ID, id)
-        .first()
-      
+      const row = await this.db(UserEntity.TABLE_NAME).where(UserEntity.COLUMNS.ID, id).first()
+
       return row ? this.mapDbRowToUser(row) : null
     } catch (error) {
       logger.error('Error finding user by ID:', error)
@@ -46,7 +38,7 @@ export class UserRepository {
       const row = await this.db(UserEntity.TABLE_NAME)
         .where(UserEntity.COLUMNS.EMAIL, email.toLowerCase())
         .first()
-      
+
       return row ? this.mapDbRowToUser(row) : null
     } catch (error) {
       logger.error('Error finding user by email:', error)
@@ -57,7 +49,7 @@ export class UserRepository {
   async create(userData: UserCreateInput): Promise<string> {
     try {
       const now = new Date()
-      
+
       await this.db(UserEntity.TABLE_NAME).insert({
         [UserEntity.COLUMNS.ID]: userData.id,
         [UserEntity.COLUMNS.EMAIL]: userData.email.toLowerCase(),
@@ -131,7 +123,7 @@ export class UserRepository {
         name: row.name,
         role: row.role,
         createdAt: new Date(row.created_at),
-        updatedAt: new Date(row.updated_at)
+        updatedAt: new Date(row.updated_at),
       }))
     } catch (error) {
       logger.error('Error listing users:', error)
@@ -154,7 +146,7 @@ export class UserRepository {
       const user = await this.db(UserEntity.TABLE_NAME)
         .where(UserEntity.COLUMNS.EMAIL, email.toLowerCase())
         .first()
-      
+
       return !!user
     } catch (error) {
       logger.error('Error checking if user exists:', error)

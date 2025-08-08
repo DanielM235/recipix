@@ -4,27 +4,34 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import packageJson from './package.json'
 
-export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        clientsClaim: true,
-        skipWaiting: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
-      },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-      manifest: {
-        name: 'Recipix - Financial Receipt Processor',
-        short_name: 'Recipix',
-        description: 'Capture and process receipts for financial systems',
-        theme_color: '#3b82f6',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+export default defineConfig(() => {
+  // Load environment variables
+  const basePath = process.env.PUBLIC_BASE_PATH || '/'
+  const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3001/api'
+  
+  return {
+    // Set base path for deployment
+    base: basePath,
+    plugins: [
+      react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        workbox: {
+          clientsClaim: true,
+          skipWaiting: true,
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+        },
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+        manifest: {
+          name: 'Recipix - Financial Receipt Processor',
+          short_name: 'Recipix',
+          description: 'Capture and process receipts for financial systems',
+          theme_color: '#3b82f6',
+          background_color: '#ffffff',
+          display: 'standalone',
+          orientation: 'portrait',
+          scope: basePath,
+          start_url: basePath,
         icons: [
           {
             src: 'icons/icon-72x72.png',
@@ -71,27 +78,30 @@ export default defineConfig({
     })
   ],
   define: {
-    // Inject version at build time
-    __APP_VERSION__: JSON.stringify(packageJson.version),
-    __APP_NAME__: JSON.stringify(packageJson.name),
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+      // Inject version and configuration at build time
+      __APP_VERSION__: JSON.stringify(packageJson.version),
+      __APP_NAME__: JSON.stringify(packageJson.name),
+      __API_BASE_URL__: JSON.stringify(apiBaseUrl),
+      __BASE_PATH__: JSON.stringify(basePath),
     },
-  },
-  server: {
-    host: '0.0.0.0',
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
       },
     },
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
+    server: {
+      host: '0.0.0.0',
+      port: 3000,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+      },
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: true,
+    },
+  }
 })

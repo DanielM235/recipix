@@ -16,7 +16,7 @@ afterAll(async () => {
     // Log error during cleanup but don't fail tests
     console.warn('Error during database cleanup:', error)
   }
-  
+
   // Final cleanup
   await new Promise<void>(resolve => setTimeout(() => resolve(), 100))
 })

@@ -25,7 +25,7 @@ class DatabaseService {
 
   public async initialize(): Promise<void> {
     if (this._initialized) return
-    
+
     try {
       // Ensure data directory exists
       if (process.env.NODE_ENV !== 'test') {

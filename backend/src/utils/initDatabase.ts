@@ -5,9 +5,9 @@ export async function initializeDatabase(): Promise<void> {
   try {
     const dbService = DatabaseService.getInstance()
     await dbService.initialize()
-    
+
     const db = dbService.db
-    
+
     // Run migrations to create all tables
     logger.info('Running database migrations...')
     await db.migrate.latest()

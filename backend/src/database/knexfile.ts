@@ -17,7 +17,7 @@ const config: { [key: string]: Knex.Config } = {
     },
     useNullAsDefault: true,
     pool: {
-      afterCreate: (conn: any, done: Function) => {
+      afterCreate: (conn: { run: Function }, done: Function) => {
         conn.run('PRAGMA foreign_keys = ON', done)
       },
     },
@@ -36,7 +36,7 @@ const config: { [key: string]: Knex.Config } = {
     },
     useNullAsDefault: true,
     pool: {
-      afterCreate: (conn: any, done: Function) => {
+      afterCreate: (conn: { run: Function }, done: Function) => {
         conn.run('PRAGMA foreign_keys = ON', done)
       },
     },
@@ -55,7 +55,7 @@ const config: { [key: string]: Knex.Config } = {
     pool: {
       min: 1,
       max: 10,
-      afterCreate: (conn: any, done: Function) => {
+      afterCreate: (conn: { run: Function }, done: Function) => {
         conn.run('PRAGMA foreign_keys = ON', done)
       },
     },

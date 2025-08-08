@@ -21,7 +21,18 @@ import authRouter from './routes/auth'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.BACKEND_PORT || process.env.PORT || 3001
+
+// Get configuration from environment
+const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || ''
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads')
+const API_BASE_URL = process.env.API_BASE_URL || `http://localhost:${PORT}/api`
+
+// Log configuration
+logger.info('🔧 Configuration loaded:')
+logger.info(`   - Base path: ${PUBLIC_BASE_PATH}`)
+logger.info(`   - Upload dir: ${UPLOAD_DIR}`)
+logger.info(`   - API URL: ${API_BASE_URL}`)
 
 // Security middleware
 app.use(
@@ -31,20 +42,22 @@ app.use(
 )
 
 // CORS configuration
+const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000'
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: corsOrigin,
     credentials: true,
   })
 )
 
-// Rate limiting
+// Rate limiting - apply to API routes only
+const apiBasePath = PUBLIC_BASE_PATH ? `${PUBLIC_BASE_PATH}/api` : '/api'
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
 })
-app.use('/api/', limiter)
+app.use(apiBasePath, limiter)
 
 // Body parsing middleware
 app.use(compression())
@@ -60,14 +73,45 @@ app.use(
   })
 )
 
-// Static files (for uploaded files)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+// Static files (for uploaded files) - use dynamic path
+const uploadsPath = PUBLIC_BASE_PATH ? `${PUBLIC_BASE_PATH}/uploads` : '/uploads'
+app.use(uploadsPath, express.static(UPLOAD_DIR))
 
-// API Routes
-app.use('/api/auth', authRouter)
-app.use('/api/health', healthRouter)
-app.use('/api/receipts', receiptsRouter)
-app.use('/api/connectors', connectorsRouter)
+// API Routes - use dynamic base path
+const apiRouter = express.Router()
+apiRouter.use('/auth', authRouter)
+apiRouter.use('/health', healthRouter)
+apiRouter.use('/receipts', receiptsRouter)
+apiRouter.use('/connectors', connectorsRouter)
+
+// Mount API router on base path
+if (PUBLIC_BASE_PATH) {
+  app.use(`${PUBLIC_BASE_PATH}/api`, apiRouter)
+} else {
+  app.use('/api', apiRouter)
+}
+
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend/dist')
+
+  if (PUBLIC_BASE_PATH) {
+    // Serve frontend at base path
+    app.use(PUBLIC_BASE_PATH, express.static(frontendPath))
+
+    // Handle SPA routing - redirect all non-API requests to index.html
+    app.get(`${PUBLIC_BASE_PATH}/*`, (req, res) => {
+      res.sendFile(path.join(frontendPath, 'index.html'))
+    })
+  } else {
+    // Default serving
+    app.use(express.static(frontendPath))
+
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(frontendPath, 'index.html'))
+    })
+  }
+}
 
 // Error handling middleware
 app.use(notFoundHandler)
@@ -78,7 +122,11 @@ if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     logger.info(`🚀 Server running on port ${PORT}`)
     logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
-    logger.info(`🔗 API URL: http://localhost:${PORT}/api`)
+    logger.info(`🔗 API URL: ${API_BASE_URL}`)
+    if (PUBLIC_BASE_PATH) {
+      const frontendUrl = process.env.FRONTEND_URL || `http://localhost:${PORT}${PUBLIC_BASE_PATH}`
+      logger.info(`🌐 Frontend URL: ${frontendUrl}`)
+    }
   })
 }
 

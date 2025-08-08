@@ -15,8 +15,8 @@ jest.mock('../utils/database', () => ({
     createUser: jest.fn(),
     updateUser: jest.fn(),
     init: jest.fn(),
-    close: jest.fn()
-  }
+    close: jest.fn(),
+  },
 }))
 
 // Import the mocked database after mocking
@@ -39,21 +39,25 @@ describe('Auth Routes', () => {
 
     it('should register a new user successfully', async () => {
       // Mock user doesn't exist
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
 
       // Mock successful user creation
-      ;(mockDatabase.createUser as jest.Mock).mockImplementation((user: any, callback: (err: Error | null, user?: any) => void) => {
-        callback(null, {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
-      })
+      ;(mockDatabase.createUser as jest.Mock).mockImplementation(
+        (user: any, callback: (err: Error | null, user?: any) => void) => {
+          callback(null, {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+        }
+      )
 
       const response = await request(app).post('/api/auth/register').send(validUserData).expect(201)
 
@@ -64,7 +68,10 @@ describe('Auth Routes', () => {
       expect(response.body.data.token).toBeDefined()
       expect(response.body.data.user.password).toBeUndefined()
 
-      expect(mockDatabase.getUserByEmail).toHaveBeenCalledWith('test@example.com', expect.any(Function))
+      expect(mockDatabase.getUserByEmail).toHaveBeenCalledWith(
+        'test@example.com',
+        expect.any(Function)
+      )
       expect(mockDatabase.createUser).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'test@example.com',
@@ -121,9 +128,11 @@ describe('Auth Routes', () => {
     })
 
     it('should return 500 if database error occurs during getUserByEmail', async () => {
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(new Error('Database error'), null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(new Error('Database error'), null)
+        }
+      )
 
       const response = await request(app).post('/api/auth/register').send(validUserData).expect(500)
 
@@ -143,9 +152,11 @@ describe('Auth Routes', () => {
         updatedAt: '2023-01-01T00:00:00.000Z',
       }
 
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, existingUser)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, existingUser)
+        }
+      )
 
       const response = await request(app).post('/api/auth/register').send(validUserData).expect(400)
 
@@ -154,13 +165,16 @@ describe('Auth Routes', () => {
     })
 
     it('should return 500 if database error occurs during createUser', async () => {
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
-
-      ;(mockDatabase.createUser as jest.Mock).mockImplementation((user: any, callback: (err: Error | null, user?: any) => void) => {
-        callback(new Error('Database error'), undefined)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
+      ;(mockDatabase.createUser as jest.Mock).mockImplementation(
+        (user: any, callback: (err: Error | null, user?: any) => void) => {
+          callback(new Error('Database error'), undefined)
+        }
+      )
 
       const response = await request(app).post('/api/auth/register').send(validUserData).expect(500)
 
@@ -176,9 +190,11 @@ describe('Auth Routes', () => {
         name: 'Test User',
       }
 
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
 
       const response = await request(app).post('/api/auth/register').send(maliciousData).expect(400)
 
@@ -204,9 +220,11 @@ describe('Auth Routes', () => {
         updatedAt: '2023-01-01T00:00:00.000Z',
       }
 
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, existingUser)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, existingUser)
+        }
+      )
 
       // Mock bcrypt compare to return true
       const bcrypt = require('bcryptjs')
@@ -241,9 +259,11 @@ describe('Auth Routes', () => {
     })
 
     it('should return 401 if user does not exist', async () => {
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
 
       const response = await request(app).post('/api/auth/login').send(validLoginData).expect(401)
 
@@ -262,9 +282,11 @@ describe('Auth Routes', () => {
         updatedAt: '2023-01-01T00:00:00.000Z',
       }
 
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, existingUser)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, existingUser)
+        }
+      )
 
       // Mock bcrypt compare to return false
       const bcrypt = require('bcryptjs')
@@ -277,9 +299,11 @@ describe('Auth Routes', () => {
     })
 
     it('should return 500 if database error occurs', async () => {
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(new Error('Database error'), null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(new Error('Database error'), null)
+        }
+      )
 
       const response = await request(app).post('/api/auth/login').send(validLoginData).expect(500)
 
@@ -289,9 +313,11 @@ describe('Auth Routes', () => {
     })
 
     it('should prevent timing attacks on non-existent users', async () => {
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
 
       const startTime = Date.now()
       await request(app).post('/api/auth/login').send(validLoginData).expect(401)
@@ -308,9 +334,11 @@ describe('Auth Routes', () => {
         password: 'password123',
       }
 
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
 
       const response = await request(app).post('/api/auth/login').send(maliciousData).expect(401)
 
@@ -331,25 +359,30 @@ describe('Auth Routes', () => {
         updatedAt: '2023-01-01T00:00:00.000Z',
       }
 
-      ;(mockDatabase.getUserById as jest.Mock).mockImplementation((id: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, testUser)
-      })
+      ;(mockDatabase.getUserById as jest.Mock).mockImplementation(
+        (id: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, testUser)
+        }
+      )
 
       // First register a user to get a token
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
-
-      ;(mockDatabase.createUser as jest.Mock).mockImplementation((user: any, callback: (err: Error | null, user?: any) => void) => {
-        callback(null, {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
+      ;(mockDatabase.createUser as jest.Mock).mockImplementation(
+        (user: any, callback: (err: Error | null, user?: any) => void) => {
+          callback(null, {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+        }
+      )
 
       const registerResponse = await request(app)
         .post('/api/auth/register')
@@ -375,25 +408,30 @@ describe('Auth Routes', () => {
     })
 
     it('should return 500 if database error occurs', async () => {
-      ;(mockDatabase.getUserById as jest.Mock).mockImplementation((id: string, callback: (err: Error | null, user: any) => void) => {
-        callback(new Error('Database error'), null)
-      })
+      ;(mockDatabase.getUserById as jest.Mock).mockImplementation(
+        (id: string, callback: (err: Error | null, user: any) => void) => {
+          callback(new Error('Database error'), null)
+        }
+      )
 
       // First register a user to get a token
-      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation((email: string, callback: (err: Error | null, user: any) => void) => {
-        callback(null, null)
-      })
-
-      ;(mockDatabase.createUser as jest.Mock).mockImplementation((user: any, callback: (err: Error | null, user?: any) => void) => {
-        callback(null, {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
-      })
+      ;(mockDatabase.getUserByEmail as jest.Mock).mockImplementation(
+        (email: string, callback: (err: Error | null, user: any) => void) => {
+          callback(null, null)
+        }
+      )
+      ;(mockDatabase.createUser as jest.Mock).mockImplementation(
+        (user: any, callback: (err: Error | null, user?: any) => void) => {
+          callback(null, {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+        }
+      )
 
       const registerResponse = await request(app)
         .post('/api/auth/register')

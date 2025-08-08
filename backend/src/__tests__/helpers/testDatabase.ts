@@ -9,7 +9,7 @@ export async function setupTestDatabase(): Promise<void> {
 export async function cleanupTestDatabase(): Promise<void> {
   const dbService = DatabaseService.getInstance()
   const db = dbService.db
-  
+
   // Clean up all tables
   if (await db.schema.hasTable('receipts')) {
     await db('receipts').del()

@@ -6,14 +6,15 @@ export async function initializeSimpleDatabase(): Promise<void> {
   // Create data directory
   const dataDir = path.join(__dirname, '../data')
   await mkdir(dataDir, { recursive: true })
-  
+
   const dbPath = path.join(dataDir, 'recipix.db')
-  
+
   const db = new sqlite3.Database(dbPath)
-  
+
   try {
     await new Promise<void>((resolve, reject) => {
-      db.run(`
+      db.run(
+        `
         CREATE TABLE IF NOT EXISTS users (
           id TEXT PRIMARY KEY,
           email TEXT UNIQUE NOT NULL,
@@ -23,16 +24,18 @@ export async function initializeSimpleDatabase(): Promise<void> {
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `, (err) => {
-        if (err) {
+      `,
+        err => {
+          if (err) {
             reject(err)
-        } else {
+          } else {
             resolve()
+          }
         }
-      })
+      )
     })
   } finally {
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       db.close(() => resolve())
     })
   }

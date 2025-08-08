@@ -18,7 +18,7 @@ class DatabaseAdapter {
   private readonly userRepository: UserRepository
 
   // Helper function to safely convert to ISO string
-  private safeToISOString(date: any): string {
+  private safeToISOString(date: Date | number | undefined): string {
     if (!date) return new Date().toISOString()
     if (date instanceof Date) {
       return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString()
@@ -42,8 +42,12 @@ class DatabaseAdapter {
   }
 
   // Backward compatible getUserByEmail method
-  getUserByEmail(email: string, callback: (err: Error | null, user: DatabaseUser | null) => void): void {
-    this.userRepository.findByEmail(email)
+  getUserByEmail(
+    email: string,
+    callback: (err: Error | null, user: DatabaseUser | null) => void
+  ): void {
+    this.userRepository
+      .findByEmail(email)
       .then(user => {
         if (user) {
           const dbUser: DatabaseUser = {
@@ -53,7 +57,7 @@ class DatabaseAdapter {
             name: user.name,
             role: user.role,
             createdAt: this.safeToISOString(user.createdAt),
-            updatedAt: this.safeToISOString(user.updatedAt)
+            updatedAt: this.safeToISOString(user.updatedAt),
           }
           callback(null, dbUser)
         } else {
@@ -68,7 +72,8 @@ class DatabaseAdapter {
 
   // Backward compatible getUserById method
   getUserById(id: string, callback: (err: Error | null, user: DatabaseUser | null) => void): void {
-    this.userRepository.findById(id)
+    this.userRepository
+      .findById(id)
       .then(user => {
         if (user) {
           const dbUser: DatabaseUser = {
@@ -77,8 +82,14 @@ class DatabaseAdapter {
             password: user.password,
             name: user.name,
             role: user.role,
-            createdAt: user.createdAt instanceof Date ? user.createdAt.toISOString() : new Date().toISOString(),
-            updatedAt: user.updatedAt instanceof Date ? user.updatedAt.toISOString() : new Date().toISOString()
+            createdAt:
+              user.createdAt instanceof Date
+                ? user.createdAt.toISOString()
+                : new Date().toISOString(),
+            updatedAt:
+              user.updatedAt instanceof Date
+                ? user.updatedAt.toISOString()
+                : new Date().toISOString(),
           }
           callback(null, dbUser)
         } else {
@@ -92,14 +103,18 @@ class DatabaseAdapter {
   }
 
   // Backward compatible createUser method
-  createUser(user: Omit<DatabaseUser, 'createdAt' | 'updatedAt'>, callback: (err: Error | null, user?: DatabaseUser) => void): void {
-    this.userRepository.create({
-      id: user.id,
-      email: user.email,
-      password: user.password,
-      name: user.name,
-      role: user.role
-    })
+  createUser(
+    user: Omit<DatabaseUser, 'createdAt' | 'updatedAt'>,
+    callback: (err: Error | null, user?: DatabaseUser) => void
+  ): void {
+    this.userRepository
+      .create({
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        name: user.name,
+        role: user.role,
+      })
       .then(userId => {
         // Return the created user
         return this.userRepository.findById(userId)
@@ -113,7 +128,7 @@ class DatabaseAdapter {
             name: createdUser.name,
             role: createdUser.role,
             createdAt: this.safeToISOString(createdUser.createdAt),
-            updatedAt: this.safeToISOString(createdUser.updatedAt)
+            updatedAt: this.safeToISOString(createdUser.updatedAt),
           }
           callback(null, dbUser)
         } else {
@@ -127,13 +142,18 @@ class DatabaseAdapter {
   }
 
   // Backward compatible updateUser method
-  updateUser(id: string, updates: Partial<Omit<DatabaseUser, 'id' | 'createdAt' | 'updatedAt'>>, callback: (err: Error | null) => void): void {
-    this.userRepository.update(id, {
-      email: updates.email,
-      password: updates.password,
-      name: updates.name,
-      role: updates.role
-    })
+  updateUser(
+    id: string,
+    updates: Partial<Omit<DatabaseUser, 'id' | 'createdAt' | 'updatedAt'>>,
+    callback: (err: Error | null) => void
+  ): void {
+    this.userRepository
+      .update(id, {
+        email: updates.email,
+        password: updates.password,
+        name: updates.name,
+        role: updates.role,
+      })
       .then(() => {
         callback(null)
       })
@@ -145,7 +165,8 @@ class DatabaseAdapter {
 
   // Close database connection
   close(callback?: (err: Error | null) => void): void {
-    DatabaseService.getInstance().close()
+    DatabaseService.getInstance()
+      .close()
       .then(() => {
         if (callback) callback(null)
       })
