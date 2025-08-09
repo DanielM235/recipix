@@ -1,5 +1,5 @@
 import DatabaseService from '../../database/connection'
-import { initializeDatabase } from '../../utils/initDatabase'
+import { initializeDatabase } from '../../test-utils/initDatabase'
 
 export async function setupTestDatabase(): Promise<void> {
   process.env.NODE_ENV = 'test'

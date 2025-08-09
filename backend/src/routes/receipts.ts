@@ -14,7 +14,7 @@ const router = Router()
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = process.env.UPLOAD_DIR || 'uploads'
+    const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads')
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true })
     }
@@ -158,7 +158,7 @@ router.post('/:id/process', async (req: Request, res: Response, next: NextFuncti
 
     // Process the file based on type
     let ocrData: OCRData
-    const filePath = path.join(process.env.UPLOAD_DIR || 'uploads', receipt.filename)
+    const filePath = path.join(process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads'), receipt.filename)
 
     if (receipt.mimeType.startsWith('image/')) {
       ocrData = await processImage(filePath)

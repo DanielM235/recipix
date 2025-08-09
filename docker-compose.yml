@@ -36,7 +36,7 @@ services:
       
       # Database Configuration
       - DB_TYPE=${DB_TYPE:-sqlite}
-      - DB_FILE_PATH=${DB_FILE_PATH:-/app/data/recipix.db}
+      - DATABASE_PATH=${DATABASE_PATH:-/app/data/recipix.db}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}

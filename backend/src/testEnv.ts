@@ -1,4 +1,6 @@
 // Test environment setup
+import path from 'path'
+
 process.env.NODE_ENV = 'test'
 process.env.PORT = '0' // Use random port for tests
 process.env.LOG_LEVEL = 'error' // Reduce log noise in tests
@@ -9,7 +11,12 @@ if (!process.env.JWT_SECRET) {
 }
 
 if (!process.env.UPLOAD_DIR) {
-  process.env.UPLOAD_DIR = './uploads'
+  process.env.UPLOAD_DIR = path.join(__dirname, '../uploads')
+}
+
+// Set test database path (use memory by default for tests)
+if (!process.env.TEST_DATABASE_PATH) {
+  process.env.TEST_DATABASE_PATH = ':memory:'
 }
 
 if (!process.env.MAX_FILE_SIZE) {

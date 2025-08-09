@@ -93,6 +93,47 @@ export async function ensureMigrationsAreApplied(): Promise<boolean> {
 }
 
 /**
+ * Run database seeds in development mode
+ */
+export async function runSeedsInDevelopment(): Promise<boolean> {
+  try {
+    // Only run seeds in development mode
+    if (process.env.NODE_ENV !== 'development') {
+      logger.info('⏭️  Skipping seeds (not in development mode)')
+      return true
+    }
+
+    const dbService = DatabaseService.getInstance()
+    const db = dbService.db
+
+    logger.info('🌱 Running database seeds for development...')
+    
+    // Check if users table already has data
+    const userCount = await db(UserEntity.TABLE_NAME).count('* as count').first()
+    const currentUserCount = parseInt(userCount?.count as string) || 0
+    
+    if (currentUserCount > 0) {
+      logger.info(`📊 Found ${currentUserCount} existing users, skipping seed data`)
+      return true
+    }
+
+    // Run the seeds
+    await db.seed.run()
+    logger.info('✅ Database seeds completed successfully')
+    
+    // Log what was seeded
+    const newUserCount = await db(UserEntity.TABLE_NAME).count('* as count').first()
+    const seededUserCount = parseInt(newUserCount?.count as string) || 0
+    logger.info(`🎯 Seeded ${seededUserCount} users for development`)
+
+    return true
+  } catch (error) {
+    logger.error('❌ Database seeding failed:', error)
+    return false
+  }
+}
+
+/**
  * Verify database connection and basic functionality
  */
 export async function verifyDatabaseConnection(): Promise<boolean> {
@@ -146,10 +187,16 @@ export async function initializeDatabaseOnStartup(): Promise<void> {
       throw new Error('Database table verification failed')
     }
 
-    // Step 4: Ensure admin user exists (from environment variables)
+    // Step 4: Run seeds in development mode (before admin user setup)
+    const seedsOk = await runSeedsInDevelopment()
+    if (!seedsOk) {
+      logger.warn('⚠️  Database seeding failed, continuing anyway...')
+    }
+
+    // Step 5: Ensure admin user exists (from environment variables)
     await ensureAdminUserExists()
 
-    // Step 5: Verify admin user setup and provide status
+    // Step 6: Verify admin user setup and provide status
     const adminStats = await getAdminUserStats()
     if (adminStats.adminCount === 0) {
       logger.warn('⚠️  No admin users found in database')

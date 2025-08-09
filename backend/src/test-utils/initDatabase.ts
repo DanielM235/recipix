@@ -1,5 +1,5 @@
 import DatabaseService from '../database/connection'
-import logger from './logger'
+import logger from '../utils/logger'
 
 export async function initializeDatabase(): Promise<void> {
   try {

@@ -53,6 +53,10 @@ coverage/
 uploads/
 temp/
 
+# Dev Database
+/data
+backend/data
+
 # Docker
 .dockerignore
 

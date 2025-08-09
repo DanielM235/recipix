@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { initializeDatabase } from './src/utils/initDatabase'
+import { initializeDatabase } from './src/test-utils/initDatabase'
 
 console.log('Testing database initialization with migrations...')
 

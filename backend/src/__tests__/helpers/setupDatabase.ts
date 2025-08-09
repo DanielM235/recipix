@@ -1,4 +1,4 @@
-import { initializeDatabase } from '../../utils/initDatabase'
+import { initializeDatabase } from '../../test-utils/initDatabase'
 
 // Setup database before tests
 beforeAll(async () => {
@@ -6,8 +6,3 @@ beforeAll(async () => {
   process.env.NODE_ENV = 'test'
   await initializeDatabase()
 })
-
-export const setupDatabase = async () => {
-  process.env.NODE_ENV = 'test'
-  await initializeDatabase()
-}

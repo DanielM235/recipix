@@ -1,11 +1,47 @@
 import type { Knex } from 'knex'
 import path from 'path'
+import dotenv from 'dotenv'
+
+// Load environment-specific config
+const env = process.env.NODE_ENV || 'development'
+if (env === 'development') {
+  dotenv.config({ path: path.join(__dirname, '../../.env.development') })
+} else if (env === 'test') {
+  // Test config is handled in testEnv.ts
+} else {
+  // Production/other environments use root .env
+  dotenv.config({ path: path.join(__dirname, '../../../.env') })
+}
+
+// Helper function to resolve database path
+function getDatabasePath(envPath?: string, fallbackPath?: string): string {
+  let resolvedPath: string
+  
+  if (envPath) {
+    resolvedPath = envPath
+  } else if (fallbackPath) {
+    resolvedPath = fallbackPath
+  } else {
+    // Default fallback to backend/data directory from project root
+    resolvedPath = path.join(process.cwd(), 'backend/data/recipix.db')
+  }
+  
+  // Make relative paths absolute from project root
+  if (!path.isAbsolute(resolvedPath)) {
+    resolvedPath = path.join(process.cwd(), resolvedPath)
+  }
+  
+  return resolvedPath
+}
 
 const config: { [key: string]: Knex.Config } = {
   development: {
     client: 'sqlite3',
     connection: {
-      filename: path.join(__dirname, '../data/recipix.db'),
+      filename: getDatabasePath(
+        process.env.DATABASE_PATH,
+        path.join(process.cwd(), 'backend/data/recipix.db')
+      ),
     },
     migrations: {
       directory: path.join(__dirname, './migrations'),
@@ -25,7 +61,10 @@ const config: { [key: string]: Knex.Config } = {
 
   test: {
     client: 'sqlite3',
-    connection: ':memory:',
+    connection: getDatabasePath(
+      process.env.TEST_DATABASE_PATH,
+      ':memory:'
+    ),
     migrations: {
       directory: path.join(__dirname, './migrations'),
       extension: 'ts',
@@ -45,7 +84,10 @@ const config: { [key: string]: Knex.Config } = {
   production: {
     client: 'sqlite3',
     connection: {
-      filename: process.env.DATABASE_PATH || path.join(__dirname, '../data/recipix.db'),
+      filename: getDatabasePath(
+        process.env.DATABASE_PATH,
+        path.join(process.cwd(), 'backend/data/recipix.db')
+      ),
     },
     migrations: {
       directory: path.join(__dirname, './migrations'),
