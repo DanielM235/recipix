@@ -32,15 +32,16 @@ export const errorHandler = (
   }
 
   // Mongoose duplicate key
-  if (err.name === 'MongoError' && (err as any).code === 11000) {
+  if (err.name === 'MongoError' && (err as unknown as { code: number }).code === 11000) {
     message = 'Duplicate field value entered'
     statusCode = 400
   }
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    message = Object.values((err as any).errors)
-      .map((val: any) => val.message)
+    const validationError = err as unknown as { errors: Record<string, { message: string }> }
+    message = Object.values(validationError.errors)
+      .map((val: { message: string }) => val.message)
       .join(', ')
     statusCode = 400
   }
@@ -58,13 +59,14 @@ export const errorHandler = (
 
   // Multer errors
   if (err.name === 'MulterError') {
-    if ((err as any).code === 'LIMIT_FILE_SIZE') {
+    const multerError = err as unknown as { code: string }
+    if (multerError.code === 'LIMIT_FILE_SIZE') {
       message = 'File too large'
       statusCode = 400
-    } else if ((err as any).code === 'LIMIT_FILE_COUNT') {
+    } else if (multerError.code === 'LIMIT_FILE_COUNT') {
       message = 'Too many files'
       statusCode = 400
-    } else if ((err as any).code === 'LIMIT_UNEXPECTED_FILE') {
+    } else if (multerError.code === 'LIMIT_UNEXPECTED_FILE') {
       message = 'Unexpected file field'
       statusCode = 400
     }

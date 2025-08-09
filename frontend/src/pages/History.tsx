@@ -18,8 +18,9 @@ function History() {
       setReceipts(response.receipts)
       setTotalPages(Math.ceil(response.total / 20))
       setCurrentPage(page)
-    } catch (error) {
-      console.error('Error fetching receipts:', error)
+    } catch {
+      // Handle error silently or show user-friendly message
+      setReceipts([])
     } finally {
       setIsLoading(false)
     }

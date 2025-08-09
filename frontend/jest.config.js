@@ -7,10 +7,10 @@ module.exports = {
     '\\.(css|less|scss)$': 'identity-obj-proxy'
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { useESM: true}],
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: 'tsconfig.json'
+    }],
   },
-  globals: {},
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.(test|spec).{js,jsx,ts,tsx}'

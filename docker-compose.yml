@@ -1,39 +1,108 @@
-version: '3.8'
-
 services:
   recipix:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Pass build-time environment variables
+        - PUBLIC_BASE_PATH=${PUBLIC_BASE_PATH:-/receipts}
+        - API_BASE_URL=${API_BASE_URL:-http://localhost:3001/api}
+    
+    # Container name for easier management
+    container_name: recipix-app
+    
     ports:
-      - "3000:3000"
-      - "3001:3001"
+      # Map host port (configurable) to container port
+      - "${HOST_PORT:-3001}:${BACKEND_PORT:-3001}"
+    
     environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - CORS_ORIGIN=http://localhost:3000
-      - UPLOAD_DIR=/app/uploads
-      - LOG_LEVEL=info
+      # Application Configuration
+      - NODE_ENV=${NODE_ENV:-production}
+      - APP_NAME=${APP_NAME:-recipix}
+      
+      # Network Configuration
+      - PORT=${BACKEND_PORT:-3001}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+      
+      # Path Configuration
+      - PUBLIC_BASE_PATH=${PUBLIC_BASE_PATH:-/receipts}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:3001/api}
+      
+      # Security Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS:-12}
+      
+      # Database Configuration
+      - DB_TYPE=${DB_TYPE:-sqlite}
+      - DATABASE_PATH=${DATABASE_PATH:-/app/data/recipix.db}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      
+      # File Storage Configuration
+      - UPLOAD_DIR=${UPLOAD_DIR:-/app/uploads}
+      - LOG_DIR=${LOG_DIR:-/app/logs}
+      - DATA_DIR=${DATA_DIR:-/app/data}
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-10485760}
+      
+      # External Services
+      - FIREFLY_III_URL=${FIREFLY_III_URL}
+      - FIREFLY_III_TOKEN=${FIREFLY_III_TOKEN}
+      - OCR_API_KEY=${OCR_API_KEY}
+      - OCR_SERVICE_URL=${OCR_SERVICE_URL}
+      
+      # Logging Configuration
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+    
     volumes:
-      - uploads:/app/uploads
-      - logs:/app/logs
+      # Map host directories to container volumes using APP_BASE_PATH
+      - ${APP_BASE_PATH:-./data}/uploads:/app/uploads
+      - ${APP_BASE_PATH:-./data}/logs:/app/logs
+      - ${APP_BASE_PATH:-./data}/database:/app/data
+    
     restart: unless-stopped
+    
+    # Health check to ensure the application is running properly
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:${BACKEND_PORT:-3001}/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    
+    # Limit resources to prevent abuse
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+    # Network settings
+    networks:
+      - recipix-network
 
-  # Optional: Add a reverse proxy
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - recipix
-    restart: unless-stopped
-
+# Define named volumes for better management
 volumes:
-  uploads:
-  logs:
+  recipix-uploads:
+    driver: local
+  recipix-logs:
+    driver: local
+  recipix-data:
+    driver: local
+
+# Create isolated network for the application
+networks:
+  recipix-network:
+    driver: bridge

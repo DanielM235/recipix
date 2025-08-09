@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Home, Upload, History, Settings } from 'lucide-react'
+import { getVersionString } from '../../utils/version'
 
 function Sidebar() {
   const { t } = useTranslation()
@@ -57,7 +58,7 @@ function Sidebar() {
         {/* Footer */}
         <div className='p-4 border-t border-gray-200 dark:border-gray-700'>
           <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
-            {t('app.title')} v1.0.0
+            {t('app.title')} {getVersionString()}
           </p>
         </div>
       </div>

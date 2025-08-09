@@ -14,7 +14,7 @@ const router = Router()
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = process.env.UPLOAD_DIR || 'uploads'
+    const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads')
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true })
     }
@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
   },
 })
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: unknown, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Accept images and PDFs only
   if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
     cb(null, true)
@@ -158,7 +158,10 @@ router.post('/:id/process', async (req: Request, res: Response, next: NextFuncti
 
     // Process the file based on type
     let ocrData: OCRData
-    const filePath = path.join(process.env.UPLOAD_DIR || 'uploads', receipt.filename)
+    const filePath = path.join(
+      process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads'),
+      receipt.filename
+    )
 
     if (receipt.mimeType.startsWith('image/')) {
       ocrData = await processImage(filePath)
@@ -285,10 +288,11 @@ async function processPDF(filePath: string): Promise<OCRData> {
 
 function extractDataFromText(text: string) {
   // Simple extraction logic - in production, use more sophisticated NLP
-  const extractedData: any = {}
+  const extractedData: Record<string, unknown> = {}
 
   // Extract amount (simple regex for currency)
-  const amountMatch = text.match(/\$?\d+[.,]\d{2}|\$\d+/)
+  const amountRegex = /\$?\d+[.,]\d{2}|\$\d+/
+  const amountMatch = amountRegex.exec(text)
   if (amountMatch) {
     extractedData.amount = parseFloat(amountMatch[0].replace('$', '').replace(',', '.'))
   }

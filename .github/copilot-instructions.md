@@ -133,6 +133,19 @@ shared/
    - Internationalization support
    - Security considerations addressed
 
+## Important Project Rules
+
+### NPM Workspace Management
+- **NEVER install dependencies in subdirectories** (frontend/ or backend/)
+- **ALWAYS run npm install/ci commands from the root directory**
+- This project uses npm workspaces - all dependency management happens at root level
+- Use `npm install <package> --workspace=frontend` or `npm install <package> --workspace=backend` for workspace-specific packages
+
+### Docker Compose Format
+- **NEVER use legacy `version:` field in docker-compose files**
+- Use modern docker-compose format without version specification
+- The `version:` field is deprecated and should not be included
+
 ## Specific Technologies
 
 ### Frontend Dependencies

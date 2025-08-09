@@ -37,9 +37,9 @@ function Upload() {
 
           setUploadedFiles(prev => [...prev, response.receipt])
           toast.success(t('success.uploaded'))
-        } catch (error) {
+        } catch {
           toast.error(t('errors.uploadFailed'))
-          console.error('Upload error:', error)
+          // Error is already handled via toast notification
         } finally {
           setIsUploading(false)
           setUploadProgress(0)

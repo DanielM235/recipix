@@ -8,7 +8,9 @@
     "home": "Home",
     "upload": "Upload",
     "history": "History",
-    "settings": "Settings"
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout"
   },
   "upload": {
     "title": "Upload Receipt",
@@ -64,6 +66,41 @@
       "disconnected": "Disconnected"
     }
   },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Full Name",
+    "hasAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters long",
+    "nameRequired": "Name is required",
+    "genericError": "An error occurred. Please try again."
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Your account information",
+    "logout": "Logout",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "roleAdmin": "Administrator",
+    "roleUser": "User",
+    "accountType": "Account Type",
+    "administratorAccount": "Administrator Account",
+    "standardAccount": "Standard Account",
+    "memberSince": "Member since",
+    "permissions": "Permissions",
+    "permissionUpload": "Upload and process receipts",
+    "permissionHistory": "View personal history",
+    "permissionManageConnectors": "Manage connectors for all users",
+    "permissionViewAllUsers": "View all user data",
+    "adminNote": "Administrator Account",
+    "adminDescription": "As an administrator, you have full access to the system, including connector and user management."
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -73,7 +110,8 @@
     "error": "Error",
     "success": "Success",
     "retry": "Retry",
-    "close": "Close"
+    "close": "Close",
+    "notAvailable": "Not available"
   },
   "errors": {
     "fileTooBig": "File is too large. Maximum size is 10MB.",
