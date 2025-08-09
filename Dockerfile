@@ -101,8 +101,11 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=backend-build /app/backend/dist ./backend/dist
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
-# Copy shared types
+# Copy the built shared types
 COPY shared/ ./shared/
+
+# Set frontend dist path for static serving
+ENV FRONTEND_DIST_PATH=/app/frontend/dist
 
 # Create directories and set permissions in one layer
 RUN mkdir -p uploads logs data && \
