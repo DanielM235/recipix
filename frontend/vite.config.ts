@@ -6,7 +6,7 @@ import packageJson from './package.json'
 
 export default defineConfig(() => {
   // Load environment variables
-  const basePath = process.env.PUBLIC_BASE_PATH || '/'
+  const basePath = process.env.VITE_BASE_PATH || process.env.PUBLIC_BASE_PATH || '/'
   const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3001/api'
   
   return {

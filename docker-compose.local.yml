@@ -1,0 +1,52 @@
+services:
+  recipix:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: recipix-local-prod
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - PUBLIC_BASE_PATH=/receipts
+      - API_BASE_URL=http://localhost:3001/receipts/api
+      - FRONTEND_URL=http://localhost:3001/receipts
+      - CORS_ORIGIN=http://localhost:3001
+      - JWT_SECRET=local-test-jwt-secret-key-change-in-production
+      - JWT_EXPIRES_IN=24h
+      - DATABASE_PATH=/app/data/recipix.db
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=10485760
+      - SUPPORTED_FORMATS=jpg,jpeg,png,pdf
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=100
+      - LOG_LEVEL=info
+      # Admin User Configuration
+      - ADMIN_EMAIL=admin@localhost.com
+      - ADMIN_PASSWORD=admin123
+      - ADMIN_NAME=Local Admin
+    volumes:
+      - recipix_data:/app/data
+      - recipix_uploads:/app/uploads
+      - recipix_logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/receipts/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  recipix_data:
+    driver: local
+  recipix_uploads:
+    driver: local
+  recipix_logs:
+    driver: local
+
+networks:
+  default:
+    name: recipix-local-net

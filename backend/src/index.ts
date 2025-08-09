@@ -9,6 +9,7 @@ import path from 'path'
 
 import { errorHandler } from './middleware/errorHandler'
 import { notFoundHandler } from './middleware/notFoundHandler'
+import { initializeDatabaseOnStartup } from './utils/startupVerification'
 import logger from './utils/logger'
 
 // Routes
@@ -22,6 +23,7 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.BACKEND_PORT || process.env.PORT || 3001
+const BASE_PATH = process.env.PUBLIC_BASE_PATH || ''
 
 // Get configuration from environment
 const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || ''
@@ -37,6 +39,19 @@ logger.info(`   - API URL: ${API_BASE_URL}`)
 // Security middleware
 app.use(
   helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 )
@@ -47,6 +62,8 @@ app.use(
   cors({
     origin: corsOrigin,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 )
 
@@ -93,7 +110,7 @@ if (PUBLIC_BASE_PATH) {
 
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../frontend/dist')
+  const frontendPath = path.join(__dirname, '../../../../frontend/dist')
 
   if (PUBLIC_BASE_PATH) {
     // Serve frontend at base path
@@ -119,15 +136,24 @@ app.use(errorHandler)
 
 // Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    logger.info(`🚀 Server running on port ${PORT}`)
-    logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
-    logger.info(`🔗 API URL: ${API_BASE_URL}`)
-    if (PUBLIC_BASE_PATH) {
-      const frontendUrl = process.env.FRONTEND_URL || `http://localhost:${PORT}${PUBLIC_BASE_PATH}`
-      logger.info(`🌐 Frontend URL: ${frontendUrl}`)
-    }
-  })
+  // Initialize database before starting the server
+  initializeDatabaseOnStartup()
+    .then(() => {
+      app.listen(PORT, () => {
+        logger.info(`🚀 Server running on port ${PORT}`)
+        logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+        logger.info(`🔗 API URL: ${API_BASE_URL}`)
+        if (PUBLIC_BASE_PATH) {
+          const frontendUrl =
+            process.env.FRONTEND_URL || `http://localhost:${PORT}${PUBLIC_BASE_PATH}`
+          logger.info(`🌐 Frontend URL: ${frontendUrl}`)
+        }
+      })
+    })
+    .catch(error => {
+      logger.error('💥 Failed to start server due to database initialization error:', error)
+      process.exit(1)
+    })
 }
 
 export default app

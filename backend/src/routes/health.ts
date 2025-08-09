@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express'
 import logger from '../utils/logger'
+import { getDatabaseHealth } from '../utils/startupVerification'
+import packageJson from '../../package.json'
 
 const router = Router()
 
@@ -16,7 +18,7 @@ router.get('/', (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       environment: process.env.NODE_ENV || 'development',
-      version: '1.0.0',
+      version: packageJson.version,
     },
   })
 })
@@ -27,24 +29,36 @@ router.get('/', (req: Request, res: Response) => {
  * @access  Public
  */
 router.get('/detailed', async (req: Request, res: Response) => {
-  const healthCheck = {
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0',
-    dependencies: {
-      firefly: 'unknown', // Will be checked dynamically
-      ocr: 'unknown',
-    },
-  }
-
   try {
-    // Here you would check dependencies like database, external APIs, etc.
-    // For now, just return the basic health check
+    // Check database health
+    const dbHealth = await getDatabaseHealth()
 
-    res.json({
-      success: true,
+    const healthCheck = {
+      status: dbHealth.status === 'healthy' ? 'OK' : 'DEGRADED',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: packageJson.version,
+      dependencies: {
+        database: {
+          status: dbHealth.status,
+          details: {
+            connected: dbHealth.details.connected,
+            tablesExist: dbHealth.details.tablesExist,
+            userCount: dbHealth.details.userCount,
+            adminCount: dbHealth.details.adminCount,
+            hasDefaultAdmin: dbHealth.details.hasDefaultAdmin,
+          },
+        },
+        firefly: 'unknown', // Will be checked dynamically
+        ocr: 'available', // Tesseract is bundled
+      },
+    }
+
+    const statusCode = dbHealth.status === 'healthy' ? 200 : 503
+
+    res.status(statusCode).json({
+      success: dbHealth.status === 'healthy',
       data: healthCheck,
     })
   } catch (error) {
@@ -55,8 +69,25 @@ router.get('/detailed', async (req: Request, res: Response) => {
       success: false,
       error: 'Service unavailable',
       data: {
-        ...healthCheck,
         status: 'ERROR',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
+        version: packageJson.version,
+        dependencies: {
+          database: {
+            status: 'unhealthy',
+            details: {
+              connected: false,
+              tablesExist: false,
+              userCount: 0,
+              adminCount: 0,
+              hasDefaultAdmin: false,
+            },
+          },
+          firefly: 'unknown',
+          ocr: 'unknown',
+        },
       },
     })
   }

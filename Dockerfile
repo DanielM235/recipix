@@ -1,9 +1,5 @@
 # Multi-stage build for production optimization and security
-# Using Node.js 20 Alpine for the latest features and security patches
-
-# Arguments for build-time configuration
-ARG PUBLIC_BASE_PATH=/receipts
-ARG API_BASE_URL=http://localhost:3001/api
+# Using Node.js 24.5 Alpine for the latest features and security patches
 
 # Frontend build stage
 FROM node:24.5-alpine AS frontend-build
@@ -16,15 +12,16 @@ WORKDIR /app/frontend
 # Copy frontend package files
 COPY frontend/package*.json ./
 
-# Install dependencies with clean cache
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies including dev dependencies for build
+RUN npm install && npm cache clean --force
 
-# Copy frontend source
+# Copy frontend source and shared modules
 COPY frontend/ ./
+COPY shared/ ../shared/
 
-# Set build-time environment variables
-ENV PUBLIC_BASE_PATH=$PUBLIC_BASE_PATH
-ENV API_BASE_URL=$API_BASE_URL
+# Set build-time environment variables for frontend build
+ENV VITE_API_URL=/receipts/api
+ENV VITE_BASE_PATH=/receipts
 
 # Build frontend with optimizations
 RUN npm run build
@@ -40,8 +37,8 @@ WORKDIR /app/backend
 # Copy backend package files
 COPY backend/package*.json ./
 
-# Install dependencies with clean cache
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies including dev dependencies for build
+RUN npm install && npm cache clean --force
 
 # Copy backend source and shared types
 COPY backend/ ./
@@ -70,10 +67,14 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
+# Copy backend package.json and install production dependencies only
+COPY --from=backend-build /app/backend/package*.json ./backend/
+WORKDIR /app/backend
+RUN npm install --omit=dev && npm cache clean --force
+WORKDIR /app
+
 # Copy built backend
 COPY --from=backend-build /app/backend/dist ./backend/dist
-COPY --from=backend-build /app/backend/node_modules ./backend/node_modules
-COPY --from=backend-build /app/backend/package.json ./backend/
 
 # Copy built frontend
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
@@ -98,5 +99,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # Use tini as PID 1 for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
 
+# Set working directory to backend where node_modules are installed
+WORKDIR /app/backend
+
 # Start the backend server
-CMD ["node", "backend/dist/index.js"]
+CMD ["node", "dist/backend/src/index.js"]
