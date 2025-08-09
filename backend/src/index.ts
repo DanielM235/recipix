@@ -9,6 +9,7 @@ import path from 'path'
 
 import { errorHandler } from './middleware/errorHandler'
 import { notFoundHandler } from './middleware/notFoundHandler'
+import { setupProductionStaticServer } from './middleware/staticServer'
 import { initializeDatabaseOnStartup } from './utils/startupVerification'
 import logger from './utils/logger'
 
@@ -92,7 +93,16 @@ app.use(
 
 // Static files (for uploaded files) - use dynamic path
 const uploadsPath = PUBLIC_BASE_PATH ? `${PUBLIC_BASE_PATH}/uploads` : '/uploads'
-app.use(uploadsPath, express.static(UPLOAD_DIR))
+app.use(
+  uploadsPath,
+  express.static(UPLOAD_DIR, {
+    dotfiles: 'deny',
+    maxAge: '30d',
+    setHeaders: res => {
+      res.setHeader('X-Content-Type-Options', 'nosniff')
+    },
+  })
+)
 
 // API Routes - use dynamic base path
 const apiRouter = express.Router()
@@ -108,25 +118,27 @@ if (PUBLIC_BASE_PATH) {
   app.use('/api', apiRouter)
 }
 
-// Serve frontend static files in production
+// Serve frontend static files in production with React Router support
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../../../frontend/dist')
+  const frontendPath = process.env.FRONTEND_DIST_PATH || path.join(__dirname, '../frontend/dist')
 
-  if (PUBLIC_BASE_PATH) {
-    // Serve frontend at base path
-    app.use(PUBLIC_BASE_PATH, express.static(frontendPath))
+  try {
+    const { staticServer, spaFallback } = setupProductionStaticServer(
+      frontendPath,
+      PUBLIC_BASE_PATH,
+      UPLOAD_DIR
+    )
 
-    // Handle SPA routing - redirect all non-API requests to index.html
-    app.get(`${PUBLIC_BASE_PATH}/*`, (req, res) => {
-      res.sendFile(path.join(frontendPath, 'index.html'))
-    })
-  } else {
-    // Default serving
-    app.use(express.static(frontendPath))
+    // Apply static server middleware
+    app.use(staticServer)
 
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(frontendPath, 'index.html'))
-    })
+    // Apply SPA fallback for React Router (must be after API routes)
+    app.use(spaFallback)
+
+    logger.info('🌐 Static server configured with React Router support')
+  } catch (error) {
+    logger.error('❌ Failed to configure static server:', error)
+    process.exit(1)
   }
 }
 

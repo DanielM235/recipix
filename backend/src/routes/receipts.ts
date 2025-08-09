@@ -158,7 +158,10 @@ router.post('/:id/process', async (req: Request, res: Response, next: NextFuncti
 
     // Process the file based on type
     let ocrData: OCRData
-    const filePath = path.join(process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads'), receipt.filename)
+    const filePath = path.join(
+      process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads'),
+      receipt.filename
+    )
 
     if (receipt.mimeType.startsWith('image/')) {
       ocrData = await processImage(filePath)

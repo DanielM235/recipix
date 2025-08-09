@@ -107,11 +107,11 @@ export async function runSeedsInDevelopment(): Promise<boolean> {
     const db = dbService.db
 
     logger.info('🌱 Running database seeds for development...')
-    
+
     // Check if users table already has data
     const userCount = await db(UserEntity.TABLE_NAME).count('* as count').first()
     const currentUserCount = parseInt(userCount?.count as string) || 0
-    
+
     if (currentUserCount > 0) {
       logger.info(`📊 Found ${currentUserCount} existing users, skipping seed data`)
       return true
@@ -120,7 +120,7 @@ export async function runSeedsInDevelopment(): Promise<boolean> {
     // Run the seeds
     await db.seed.run()
     logger.info('✅ Database seeds completed successfully')
-    
+
     // Log what was seeded
     const newUserCount = await db(UserEntity.TABLE_NAME).count('* as count').first()
     const seededUserCount = parseInt(newUserCount?.count as string) || 0

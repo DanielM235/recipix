@@ -16,7 +16,7 @@ if (env === 'development') {
 // Helper function to resolve database path
 function getDatabasePath(envPath?: string, fallbackPath?: string): string {
   let resolvedPath: string
-  
+
   if (envPath) {
     resolvedPath = envPath
   } else if (fallbackPath) {
@@ -25,12 +25,12 @@ function getDatabasePath(envPath?: string, fallbackPath?: string): string {
     // Default fallback to backend/data directory from project root
     resolvedPath = path.join(process.cwd(), 'backend/data/recipix.db')
   }
-  
+
   // Make relative paths absolute from project root
   if (!path.isAbsolute(resolvedPath)) {
     resolvedPath = path.join(process.cwd(), resolvedPath)
   }
-  
+
   return resolvedPath
 }
 
@@ -61,10 +61,17 @@ const config: { [key: string]: Knex.Config } = {
 
   test: {
     client: 'sqlite3',
-    connection: getDatabasePath(
-      process.env.TEST_DATABASE_PATH,
-      ':memory:'
-    ),
+    connection: (() => {
+      const testDbPath = process.env.TEST_DATABASE_PATH || ':memory:'
+      // Handle special SQLite memory database
+      if (testDbPath === ':memory:') {
+        return ':memory:'
+      }
+      // For file-based test databases, use path resolution
+      return {
+        filename: getDatabasePath(testDbPath),
+      }
+    })(),
     migrations: {
       directory: path.join(__dirname, './migrations'),
       extension: 'ts',
