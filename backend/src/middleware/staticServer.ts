@@ -54,6 +54,7 @@ export function createStaticServer(config: StaticServerConfig): express.Router {
       'woff2',
       'ttf',
       'eot',
+      'webmanifest',
     ],
     fallthrough: false, // Don't fall through to next middleware on error
     immutable: true, // Assets are immutable (good for long-term caching)
